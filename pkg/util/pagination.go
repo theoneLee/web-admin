@@ -1,8 +1,8 @@
 package util
 
 import (
+	"gitee.com/muzipp/Distribution/pkg/setting"
 	"github.com/Unknwon/com"
-	"github.com/gin-blog/pkg/setting"
 	"github.com/gin-gonic/gin"
 )
 

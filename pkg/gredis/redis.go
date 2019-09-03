@@ -6,7 +6,7 @@ import (
 
 	"github.com/gomodule/redigo/redis"
 
-	"github.com/gin-blog/pkg/setting"
+	"gitee.com/muzipp/Distribution/pkg/setting"
 )
 
 var RedisConn *redis.Pool

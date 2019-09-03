@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/gin-blog/models"
-	"github.com/gin-blog/pkg/gredis"
-	"github.com/gin-blog/pkg/logging"
-	"github.com/gin-blog/pkg/setting"
-	"github.com/gin-blog/routers"
+	"gitee.com/muzipp/Distribution/models"
+	"gitee.com/muzipp/Distribution/pkg/gredis"
+	"gitee.com/muzipp/Distribution/pkg/logging"
+	"gitee.com/muzipp/Distribution/pkg/setting"
+	"gitee.com/muzipp/Distribution/routers"
 	"log"
 	"net/http"
 )

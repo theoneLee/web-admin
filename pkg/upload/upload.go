@@ -8,10 +8,10 @@ import (
 	"path"
 	"strings"
 
-	"github.com/gin-blog/pkg/file"
-	"github.com/gin-blog/pkg/logging"
-	"github.com/gin-blog/pkg/setting"
-	"github.com/gin-blog/pkg/util"
+	"gitee.com/muzipp/Distribution/pkg/file"
+	"gitee.com/muzipp/Distribution/pkg/logging"
+	"gitee.com/muzipp/Distribution/pkg/setting"
+	"gitee.com/muzipp/Distribution/pkg/util"
 )
 
 //获取图片的完整URL

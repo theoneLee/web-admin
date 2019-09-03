@@ -5,7 +5,7 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 
-	"github.com/gin-blog/pkg/setting"
+	"gitee.com/muzipp/Distribution/pkg/setting"
 )
 
 /**

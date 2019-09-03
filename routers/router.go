@@ -1,7 +1,7 @@
 package routers
 
 import (
-	"github.com/gin-blog/pkg/setting"
+	"gitee.com/muzipp/Distribution/pkg/setting"
 	"github.com/gin-gonic/gin"
 )
 
