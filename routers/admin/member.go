@@ -5,6 +5,8 @@ import (
 	"gitee.com/muzipp/Distribution/pkg/app"
 	"gitee.com/muzipp/Distribution/pkg/e"
 	"gitee.com/muzipp/Distribution/pkg/logging"
+	"gitee.com/muzipp/Distribution/pkg/setting"
+	"gitee.com/muzipp/Distribution/pkg/util"
 	"gitee.com/muzipp/Distribution/service/admin/member"
 	"github.com/Unknwon/com"
 	"github.com/astaxie/beego/validation"
@@ -72,11 +74,30 @@ func AddMember(c *gin.Context) {
 
 }
 
-////会员列表
-//func ListMembers(c *gin.Context) {
-//	appG := app.Gin{C: c} //实例化响应对象
-//
-//}
+//会员列表
+func ListMembers(c *gin.Context) {
+	appG := app.Gin{C: c} //实例化响应对象
+	data := make(map[string]interface{})
+
+	memberService := member.Member{
+		Offset: util.GetPage(c),
+		Limit:  setting.AppSetting.PageSize,
+	}
+
+	code := e.ERROR_SQL_FAIL
+	members, err := memberService.ListMembers()
+	total, totalError := memberService.CountMembers()
+
+	if err.Code == 0 && totalError.Code == 0 {
+		code = e.SUCCESS
+		data["lists"] = members
+		data["total"] = total
+	}
+
+	appG.Response(http.StatusOK, code, data)
+
+}
+
 //
 ////会员详情
 //func DetailMember(c *gin.Context) {

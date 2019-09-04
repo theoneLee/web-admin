@@ -82,7 +82,7 @@ func updateTimeStampForCreateCallback(scope *gorm.Scope) {
 
 		//获取当前操作的所有字段，判断是否包含验证的字段
 		//scope.Fields()其实就是对应的model定义的struct字段
-		if createTimeField, ok := scope.FieldByName("CreatedOn"); ok {
+		if createTimeField, ok := scope.FieldByName("CreateAt"); ok {
 
 			//字段存在情况下，判断字段的值是否为空
 			if createTimeField.IsBlank {
@@ -92,7 +92,7 @@ func updateTimeStampForCreateCallback(scope *gorm.Scope) {
 			}
 		}
 
-		if modifyTimeField, ok := scope.FieldByName("ModifiedOn"); ok {
+		if modifyTimeField, ok := scope.FieldByName("UpdateAt"); ok {
 			if modifyTimeField.IsBlank {
 				modifyTimeField.Set(nowTime)
 			}
@@ -104,10 +104,8 @@ func updateTimeStampForCreateCallback(scope *gorm.Scope) {
 func updateTimeStampForUpdateCallback(scope *gorm.Scope) {
 
 	//这里就是判断，有没有额外的设置modified字段为额外更新字段，没有的话，更新modified_on字段为当前时间
-	if value, ok := scope.Get("gorm:modified_on"); !ok {
-		fmt.Println(value, 1)
-		fmt.Println(ok, 2)
-		scope.SetColumn("ModifiedOn", time.Now().Unix())
+	if _, ok := scope.Get("gorm:update_at"); !ok {
+		scope.SetColumn("UpdateAt", time.Now().Unix())
 	}
 }
 
@@ -119,12 +117,12 @@ func deleteCallback(scope *gorm.Scope) {
 		var extraOption string
 
 		//检测有没有手动指定删除字段delete_option，这里是没有的
-		if str, ok := scope.Get("gorm:delete_option"); ok {
+		if str, ok := scope.Get("gorm:delete_at"); ok {
 			extraOption = fmt.Sprint(str)
 		}
 
 		//获取我们约定的删除字段，若存在则 UPDATE 软删除，若不存在则 DELETE 硬删除
-		deletedOnField, hasDeletedOnField := scope.FieldByName("DeletedOn")
+		deletedOnField, hasDeletedOnField := scope.FieldByName("DeleteAt")
 
 		//判断是否有软删除的字段
 		if !scope.Search.Unscoped && hasDeletedOnField {

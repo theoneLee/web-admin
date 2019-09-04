@@ -38,3 +38,15 @@ func AddMember(data map[string]interface{}) bool {
 
 	return true
 }
+
+func ListMembers(pageNum int, pageSize int, maps interface{}) (members []Member, err error) {
+
+	err = db.Where(maps).Offset(pageNum).Limit(pageSize).Find(&members).Error
+	return
+}
+
+func CountMembers(maps interface{}) (count int, err error) {
+	err = db.Model(&Member{}).Where(maps).Count(&count).Error
+
+	return
+}
