@@ -2,5 +2,14 @@ package e
 
 const (
 	SUCCESS = 200
-	ERROR = 10001
+	ERROR   = 10001
+
+	INVALID_PARAMS                 = 20001
+	ERROR_AUTH_CHECK_TOKEN_TIMEOUT = 20002
+	ERROR_AUTH_CHECK_TOKEN_FAIL    = 20003
+	ERROR_AUTH_TOKEN               = 20004
+	ERROR_AUTH                     = 20005
+	ERROR_REDIS                    = 20006
+
+	ERROR_SQL_FAIL = 30001
 )

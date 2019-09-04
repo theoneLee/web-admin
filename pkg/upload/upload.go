@@ -60,7 +60,6 @@ func CheckImageExt(fileName string) bool {
 //检测文件大小
 func CheckImageSize(f multipart.File) bool {
 	size, err := file.GetSize(f)
-	fmt.Println("文件大小", size)
 	if err != nil {
 		log.Println(err)
 		logging.Warn(err)
@@ -75,22 +74,18 @@ func CheckImage(src string) error {
 
 	//获取当前目录所在的根目录
 	dir, err := os.Getwd()
-	fmt.Println("目录", dir)
 	if err != nil {
 		return fmt.Errorf("os.Getwd err: %v", err)
 	}
 
 	//判断文件目录是否存在，不存在创建目录
-	fmt.Println("真实名录", dir + "/" + src)
 	err = file.IsNotExistMkDir(dir + "/" + src)
-	fmt.Println("目录是否存在", err)
 	if err != nil {
 		return fmt.Errorf("file.IsNotExistMkDir err: %v", err)
 	}
 
 	//检测权限
 	perm := file.CheckPermission(src)
-	fmt.Println("权限", perm)
 	if perm == true {
 		return fmt.Errorf("file.CheckPermission Permission denied src: %s", src)
 	}

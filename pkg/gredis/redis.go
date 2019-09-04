@@ -42,19 +42,19 @@ func Setup() error {
 	return nil
 }
 
-func Set(key string, data interface{}, time int) (bool, error) {
+func Set(key string, data interface{}, time int) error {
 	conn := RedisConn.Get()
 	defer conn.Close()
 
 	value, err := json.Marshal(data)
 	if err != nil {
-		return false, err
+		return err
 	}
 
-	reply, err := redis.Bool(conn.Do("SET", key, value))
+	_, err = redis.String(conn.Do("SET", key, value))
 	conn.Do("EXPIRE", key, time)
 
-	return reply, err
+	return err
 }
 
 func Exists(key string) bool {

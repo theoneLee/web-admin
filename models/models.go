@@ -16,12 +16,12 @@ var db *gorm.DB
 /**
 暂时立即是所有model公用的字段，声明成了一个struct，在后续使用的model声明的时候
 只需要把model作为嵌入结构嵌入到新的model的struct里即可
- */
+*/
 type Model struct {
-	ID         int `gorm:"primary_key" json:"id"`
-	CreatedAt  int `json:"created_on"`
-	ModifiedAt int `json:"modified_on"`
-	DeletedAt int `json:"deleted_on"`
+	ID        int `gorm:"primary_key" json:"id"`
+	CreateAt int `json:"create_at"`
+	UpdateAt  int `json:"update_at"`
+	DeleteAt int `json:"delete_at"`
 }
 
 func Setup() {
@@ -105,8 +105,8 @@ func updateTimeStampForUpdateCallback(scope *gorm.Scope) {
 
 	//这里就是判断，有没有额外的设置modified字段为额外更新字段，没有的话，更新modified_on字段为当前时间
 	if value, ok := scope.Get("gorm:modified_on"); !ok {
-		fmt.Println(value,1)
-		fmt.Println(ok,2)
+		fmt.Println(value, 1)
+		fmt.Println(ok, 2)
 		scope.SetColumn("ModifiedOn", time.Now().Unix())
 	}
 }
@@ -128,7 +128,7 @@ func deleteCallback(scope *gorm.Scope) {
 
 		//判断是否有软删除的字段
 		if !scope.Search.Unscoped && hasDeletedOnField {
-			scope.Raw(fmt.Sprintf(//软删除字段存在的情况
+			scope.Raw(fmt.Sprintf( //软删除字段存在的情况
 				"UPDATE %v SET %v=%v%v%v",
 
 				//返回引用的表名，这个方法 GORM 会根据自身逻辑对表名进行一些处理
@@ -142,7 +142,7 @@ func deleteCallback(scope *gorm.Scope) {
 				addExtraSpaceIfExist(scope.CombinedConditionSql()),
 				addExtraSpaceIfExist(extraOption),
 			)).Exec()
-		} else {//软删除字段不存在的情况
+		} else { //软删除字段不存在的情况
 			scope.Raw(fmt.Sprintf(
 				"DELETE FROM %v%v%v",
 				scope.QuotedTableName(),

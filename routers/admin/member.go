@@ -1,1 +1,85 @@
 package admin
+
+import (
+	"fmt"
+	"gitee.com/muzipp/Distribution/pkg/app"
+	"gitee.com/muzipp/Distribution/pkg/e"
+	"gitee.com/muzipp/Distribution/pkg/logging"
+	"gitee.com/muzipp/Distribution/service/admin/member"
+	"github.com/Unknwon/com"
+	"github.com/astaxie/beego/validation"
+	"github.com/gin-gonic/gin"
+	"net/http"
+)
+
+//添加会员
+func AddMember(c *gin.Context) {
+	appG := app.Gin{C: c} //实例化响应对象
+	sex := com.StrTo(c.DefaultPostForm("sex", "0")).MustInt()
+	levelId := com.StrTo(c.DefaultPostForm("level_id", "0")).MustInt()
+	name := c.DefaultPostForm("name", "")
+	idCard := c.DefaultPostForm("id_card", "")
+	birth := c.DefaultPostForm("birth", "")
+	phone := c.DefaultPostForm("phone", "")
+	sparePhone := c.DefaultPostForm("spare_phone", "")
+	email := c.DefaultPostForm("email", "")
+	bankCard := c.DefaultPostForm("bank_card", "")
+	bank := c.DefaultPostForm("bank", "")
+
+	valid := validation.Validation{}
+	valid.Required(sex, "sex").Message("性别不能为空")
+	valid.Required(name, "name").Message("姓名不能为空")
+	valid.Required(idCard, "id_card").Message("身份证不能为空")
+	valid.Required(birth, "birth").Message("生日不能为空")
+	valid.Required(phone, "phone").Message("电话地址不能为空")
+	valid.Required(sparePhone, "spare_phone").Message("备用电话不能为空")
+	valid.Required(email, "email").Message("邮箱不能为空")
+	valid.Required(bankCard, "bank_card").Message("银行卡号不能为空")
+	valid.Required(bank, "bank").Message("开户行不能为空")
+
+	//设置返回数据
+	data := make(map[string]interface{})
+
+	code := e.INVALID_PARAMS
+	if !valid.HasErrors() {
+		memberService := member.Member{
+			Sex:        sex,
+			LevelId:    levelId,
+			Name:       name,
+			IdCard:     idCard,
+			Birth:      birth,
+			Phone:      phone,
+			SparePhone: sparePhone,
+			Email:      email,
+			BankCard:   bankCard,
+			Bank:       bank,
+			Status:     1,
+			RelationId: 0,
+		}
+		err := memberService.AddMember()
+
+		if err.Code == 0 {
+			code = e.SUCCESS
+		}
+
+	} else {
+		for _, err := range valid.Errors {
+			logging.Info(fmt.Sprintf("%s,%s", "err key is "+err.Key, "err Message is "+err.Message))
+		}
+	}
+
+	appG.Response(http.StatusOK, code, data)
+
+}
+
+////会员列表
+//func ListMembers(c *gin.Context) {
+//	appG := app.Gin{C: c} //实例化响应对象
+//
+//}
+//
+////会员详情
+//func DetailMember(c *gin.Context) {
+//	appG := app.Gin{C: c} //实例化响应对象
+//
+//}
