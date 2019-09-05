@@ -3,8 +3,6 @@ package util
 import (
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
-
 	"gitee.com/muzipp/Distribution/pkg/setting"
 )
 

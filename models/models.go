@@ -18,9 +18,9 @@ var db *gorm.DB
 只需要把model作为嵌入结构嵌入到新的model的struct里即可
 */
 type Model struct {
-	ID        int `gorm:"primary_key" json:"id"`
+	ID       int `gorm:"primary_key" json:"id"`
 	CreateAt int `json:"create_at"`
-	UpdateAt  int `json:"update_at"`
+	UpdateAt int `json:"update_at"`
 	DeleteAt int `json:"delete_at"`
 }
 

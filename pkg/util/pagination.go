@@ -2,8 +2,8 @@ package util
 
 import (
 	"gitee.com/muzipp/Distribution/pkg/setting"
-	"github.com/Unknwon/com"
 	"github.com/gin-gonic/gin"
+	"github.com/unknwon/com"
 )
 
 func GetPage(c *gin.Context) int {

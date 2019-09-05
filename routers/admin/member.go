@@ -8,9 +8,9 @@ import (
 	"gitee.com/muzipp/Distribution/pkg/setting"
 	"gitee.com/muzipp/Distribution/pkg/util"
 	"gitee.com/muzipp/Distribution/service/admin/member"
-	"github.com/Unknwon/com"
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
+	"github.com/unknwon/com"
 	"net/http"
 )
 
