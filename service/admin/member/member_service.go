@@ -1,7 +1,6 @@
 package member
 
 import (
-	"fmt"
 	"gitee.com/muzipp/Distribution/models"
 	"gitee.com/muzipp/Distribution/pkg/e"
 	"gitee.com/muzipp/Distribution/pkg/member"
@@ -42,7 +41,7 @@ func (m *Member) AddMember() (err e.SelfError) {
 
 	res := models.AddMember(data)
 
-	if !res { //添加会员失败
+	if res { //添加会员失败
 		err.Code = e.ERROR_SQL_FAIL
 	}
 
@@ -51,24 +50,24 @@ func (m *Member) AddMember() (err e.SelfError) {
 
 func (m *Member) ListMembers() (members []map[string]interface{}, err e.SelfError) {
 	memberRst, memberErr := models.ListMembers(m.Offset, m.Limit, m.getMaps())
-	if memberErr != nil {
+	if memberErr {
 		err.Code = e.ERROR_SQL_FAIL
 	}
 
 	tempRst := make(map[string]interface{})
 	for _, value := range memberRst {
+		y, _, _ := member.GetTimeFromStrDate(value.Birth)
 		tempRst["Id"] = value.ID
-		tempRst["createAt"] = value.CreateAt
 		tempRst["name"] = value.Name
 		tempRst["IdCard"] = value.IdCard
-		tempRst["birth"] = value.Birth
+		tempRst["age"] = member.GetAge(y)
 		tempRst["phone"] = value.Phone
 		tempRst["email"] = value.Email
 		tempRst["bankCard"] = value.BankCard
 		tempRst["bank"] = value.Bank
 		tempRst["status"] = member.GetStatus(value.Status)
 		tempRst["sex"] = member.GetSex(value.Sex)
-		fmt.Println(tempRst)
+		tempRst["sparePhone"] = value.SparePhone
 		members = append(members, tempRst)
 	}
 
@@ -77,7 +76,7 @@ func (m *Member) ListMembers() (members []map[string]interface{}, err e.SelfErro
 
 func (m *Member) CountMembers() (count int, err e.SelfError) {
 	count, memberErr := models.CountMembers(m.getMaps())
-	if memberErr != nil {
+	if memberErr {
 		err.Code = e.ERROR_SQL_FAIL
 	}
 

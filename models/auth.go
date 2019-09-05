@@ -2,9 +2,9 @@ package models
 
 type User struct {
 	Model
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Status   int    `json:"status"`
+	Username string
+	Password string
+	Status   int
 }
 
 func CheckAuth(username string) User {

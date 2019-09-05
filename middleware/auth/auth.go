@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"fmt"
 	"gitee.com/muzipp/Distribution/pkg/e"
 	"gitee.com/muzipp/Distribution/pkg/gredis"
 	"github.com/gin-gonic/gin"
@@ -21,7 +20,6 @@ func Auth() gin.HandlerFunc {
 		*/
 		code = e.SUCCESS
 		token := c.GetHeader("token")
-		fmt.Println("header token is ", token)
 
 		/**
 		判断token是否为空
