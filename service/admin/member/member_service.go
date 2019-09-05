@@ -3,7 +3,6 @@ package member
 import (
 	"gitee.com/muzipp/Distribution/models"
 	"gitee.com/muzipp/Distribution/pkg/e"
-	"gitee.com/muzipp/Distribution/pkg/member"
 )
 
 type Member struct {
@@ -48,13 +47,16 @@ func (m *Member) AddMember() (err e.SelfError) {
 	return
 }
 
-func (m *Member) ListMembers() (members []map[string]interface{}, err e.SelfError) {
-	memberRst, memberErr := models.ListMembers(m.Offset, m.Limit, m.getMaps())
+func (m *Member) ListMembers() (members interface{}, err e.SelfError) {
+	fields:=[]string{"id"}
+	members, memberErr := models.ListMembers(m.Offset, m.Limit, m.getMaps(),fields)
 	if memberErr {
 		err.Code = e.ERROR_SQL_FAIL
 	}
 
-	tempRst := make(map[string]interface{})
+	return
+
+	/*tempRst := make(map[string]interface{})
 	for _, value := range memberRst {
 		y, _, _ := member.GetTimeFromStrDate(value.Birth)
 		tempRst["Id"] = value.ID
@@ -71,7 +73,7 @@ func (m *Member) ListMembers() (members []map[string]interface{}, err e.SelfErro
 		members = append(members, tempRst)
 	}
 
-	return
+	return*/
 }
 
 func (m *Member) CountMembers() (count int, err e.SelfError) {
