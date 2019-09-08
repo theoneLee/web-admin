@@ -7,14 +7,14 @@ import (
 
 type Goods struct {
 	Model
-	Name   string
-	Price  float64
-	Remark string
-	Stock  int
-	Status int
-	StatusDesc string `gorm:"-"`
-	Images []string `gorm:"-"`
-	Img    string   `gorm:"-"`
+	Name       string
+	Price      float64
+	Remark     string
+	Stock      int
+	Status     int
+	StatusDesc string   `gorm:"-"`
+	Images     []string `gorm:"-"`
+	Img        string   `gorm:"-"`
 }
 
 func AddGoods(data map[string]interface{}, tx *gorm.DB) (id int, flag bool) {
@@ -60,4 +60,25 @@ func CountGoods(maps interface{}) (count int, flag bool) {
 		return
 	}
 	return
+}
+
+//商品详情
+func DetailGoods(id int, fields string) (*Goods, bool) {
+	var goods Goods
+	var flag bool
+	err := Db.Table("goods").
+		Where("goods.id = ? AND goods.delete_at = ? ", id, 0).
+		Joins("left join `goods_img` as gi on gi.goods_id = goods.id").
+		Select(fields).
+		Find(&goods).Error
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
+		flag = true
+		logging.Info("商品详情错误", err) //记录错误日志
+		return &goods, flag
+	}
+
+	if gorm.IsRecordNotFoundError(err) {//查询结果不存在的情况
+		return nil, flag
+	}
+	return &goods, flag
 }

@@ -2,6 +2,7 @@ package admin
 
 import (
 	"fmt"
+	"gitee.com/muzipp/Distribution/models"
 	"gitee.com/muzipp/Distribution/pkg/app"
 	"gitee.com/muzipp/Distribution/pkg/e"
 	"gitee.com/muzipp/Distribution/pkg/logging"
@@ -83,5 +84,32 @@ func ListGoods(c *gin.Context) {
 
 //商品详情
 func DetailGoods(c *gin.Context) {
+	appG := app.Gin{C: c} //实例化响应对象
+	id := com.StrTo(c.Param("id")).MustInt()
+	valid := validation.Validation{}
+	valid.Min(id, 1, "id").Message("ID必须大于0")
+
+	//验证有没有错误
+	if valid.HasErrors() {
+		//记录验证错误日志
+		app.MarkErrors(valid.Errors)
+		//请求返回
+		appG.Response(http.StatusOK, e.INVALID_PARAMS, nil)
+	}
+	code := e.ERROR_SQL_FAIL
+	var data *models.Goods
+
+	//获取商品详情
+	goodsService := goods.Goods{
+		Id: id,
+	}
+
+	goodsRst, err := goodsService.DetailGoods()
+	if err.Code == 0 {
+		code = e.SUCCESS
+		data = goodsRst
+	}
+
+	appG.Response(http.StatusOK, code, data)
 
 }

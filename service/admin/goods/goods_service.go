@@ -1,13 +1,14 @@
 package goods
 
 import (
+	"fmt"
 	"gitee.com/muzipp/Distribution/models"
 	"gitee.com/muzipp/Distribution/pkg/e"
+	seleGoods "gitee.com/muzipp/Distribution/pkg/goods"
 	"gitee.com/muzipp/Distribution/pkg/upload"
 	"github.com/gin-gonic/gin"
 	"mime/multipart"
 	"strings"
-	seleGoods "gitee.com/muzipp/Distribution/pkg/goods"
 )
 
 type Goods struct {
@@ -110,7 +111,7 @@ func (g *Goods) ListGoods() (goods []models.Goods, err e.SelfError) {
 	}
 
 	//切割字符串图片
-	for key,value:=range goods{
+	for key, value := range goods {
 		goods[key].Images = strings.Fields(value.Img)
 		goods[key].StatusDesc = seleGoods.GetStatus(value.Status)
 	}
@@ -126,6 +127,22 @@ func (g *Goods) CountGoods() (count int, err e.SelfError) {
 		err.Code = e.ERROR_SQL_FAIL
 	}
 
+	return
+}
+
+//获取文章（redis不存在读取数据库）
+func (g *Goods) DetailGoods() (goods *models.Goods, err e.SelfError) {
+	fmt.Println("test detail")
+	fields := "*"
+	goods, goodsErr := models.DetailGoods(g.Id, fields)
+	if goodsErr {
+		err.Code = e.ERROR_SQL_FAIL
+	}
+
+	if goods!=nil {
+		goods.Images = strings.Fields(goods.Img)
+		goods.StatusDesc = seleGoods.GetStatus(goods.Status)
+	}
 	return
 }
 
