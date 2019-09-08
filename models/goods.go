@@ -79,6 +79,7 @@ func DetailGoods(id int, fields string) (*Goods, bool) {
 	}
 
 	if gorm.IsRecordNotFoundError(err) { //查询结果不存在的情况
+		flag = true
 		return nil, flag
 	}
 	return &goods, flag

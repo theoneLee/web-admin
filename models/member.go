@@ -1,6 +1,9 @@
 package models
 
-import "gitee.com/muzipp/Distribution/pkg/logging"
+import (
+	"gitee.com/muzipp/Distribution/pkg/logging"
+	"github.com/jinzhu/gorm"
+)
 
 type Member struct {
 	Model
@@ -69,6 +72,39 @@ func ListMembers(pageNum int, pageSize int, maps interface{}, fields string) (me
 		logging.Info("会员列表错误", err) //记录错误日志
 		return
 	}
+	return
+}
+
+//商品详情
+func DetailMember(id int, fields string) (*Member, bool) {
+	var member Member
+	var flag bool
+	err := Db.Debug().Table("member").
+		Where("id = ? AND delete_at = ? ", id, 0).
+		Select(fields).
+		Find(&member).Error
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
+		flag = true
+		logging.Info("会员详情错误", err) //记录错误日志
+		return &member, flag
+	}
+
+	if gorm.IsRecordNotFoundError(err) { //查询结果不存在的情况
+		flag = true
+		return nil, flag
+	}
+	return &member, flag
+}
+
+func StatusChange(maps interface{}, data map[string]interface{}) (flag bool) {
+	err := Db.Debug().Model(Member{}).Where(maps).Update(data).Error
+
+	if err != nil { //会员状态变化
+		flag = true
+		logging.Info("状态变化失败", err) //记录错误日志
+		return
+	}
+
 	return
 }
 

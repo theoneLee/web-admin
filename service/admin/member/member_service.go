@@ -8,6 +8,7 @@ import (
 )
 
 type Member struct {
+	Id         int
 	RelationId int
 	Name       string
 	Sex        int
@@ -70,6 +71,34 @@ func (m *Member) ListMembers() (members []models.Member, err e.SelfError) {
 
 	return
 
+}
+
+//添加会员代码
+func (m *Member) StatusChange() (err e.SelfError) {
+	data := make(map[string]interface{})
+	data["status"] = m.Status
+	maps := m.getMaps()
+	maps["id"] = m.Id
+
+	selectMember, selectErr := models.DetailMember(m.Id, "id,status")//获取订单详情
+
+	if selectErr || selectMember == nil {
+		err.Code = e.ERROR_SQL_FAIL
+		return
+	}
+
+	if selectMember.Status == m.Status {
+		err.Code = e.ERROR_SQL_FAIL
+		return
+	}
+
+	res := models.StatusChange(maps, data)
+
+	if res { //会员状态变化失败
+		err.Code = e.ERROR_SQL_FAIL
+	}
+
+	return
 }
 
 func (m *Member) CountMembers() (count int, err e.SelfError) {

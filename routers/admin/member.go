@@ -11,6 +11,7 @@ import (
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
 	"github.com/unknwon/com"
+	"log"
 	"net/http"
 )
 
@@ -96,6 +97,38 @@ func ListMembers(c *gin.Context) {
 	}
 
 	appG.Response(http.StatusOK, code, data)
+
+}
+
+//会员列表
+func MemberStatusChange(c *gin.Context) {
+	appG := app.Gin{C: c} //实例化响应对象
+	id := com.StrTo(c.PostForm("id")).MustInt()
+	status := com.StrTo(c.PostForm("status")).MustInt()
+
+	valid := validation.Validation{}
+	valid.Required(id, "id").Message("ID不能为空")
+	valid.Range(status, -2, -1, "status").Message("状态只允许-2或-1")
+
+	code := e.INVALID_PARAMS
+	if !valid.HasErrors() {
+		memberService := member.Member{
+			Id:id,
+			Status:status,
+		}
+		code = e.ERROR_SQL_FAIL
+		err := memberService.StatusChange()
+		if err.Code == 0  {
+			code = e.SUCCESS
+		}
+	} else {
+		for _, err := range valid.Errors {
+			log.Printf("err.key: %s, err.message: %s", err.Key, err.Message)
+		}
+	}
+
+
+	appG.Response(http.StatusOK, code, nil)
 
 }
 
