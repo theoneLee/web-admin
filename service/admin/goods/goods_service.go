@@ -1,7 +1,6 @@
 package goods
 
 import (
-	"fmt"
 	"gitee.com/muzipp/Distribution/models"
 	"gitee.com/muzipp/Distribution/pkg/e"
 	seleGoods "gitee.com/muzipp/Distribution/pkg/goods"
@@ -132,18 +131,33 @@ func (g *Goods) CountGoods() (count int, err e.SelfError) {
 
 //获取文章（redis不存在读取数据库）
 func (g *Goods) DetailGoods() (goods *models.Goods, err e.SelfError) {
-	fmt.Println("test detail")
 	fields := "*"
 	goods, goodsErr := models.DetailGoods(g.Id, fields)
 	if goodsErr {
 		err.Code = e.ERROR_SQL_FAIL
 	}
 
-	if goods!=nil {
+	if goods != nil {
 		goods.Images = strings.Fields(goods.Img)
 		goods.StatusDesc = seleGoods.GetStatus(goods.Status)
 	}
 	return
+}
+
+//判断商品是否存在
+func (g *Goods) DeleteGoods() (flag bool) {
+
+	tx := models.Db.Begin()
+
+	goodsErr := models.DeleteGoods(g.Id, tx)
+	goodsImgErr:=models.DeleteGoodsImg(g.Id, tx)
+
+	if goodsErr || goodsImgErr {
+		tx.Rollback()
+	} else {
+		tx.Commit()
+	}
+	return goodsErr || goodsImgErr
 }
 
 //封装搜索条件

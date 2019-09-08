@@ -39,6 +39,7 @@ func AddGoods(data map[string]interface{}, tx *gorm.DB) (id int, flag bool) {
 func ListGoods(pageNum int, pageSize int, maps interface{}, fields string) (goods []Goods, flag bool) {
 
 	err := Db.Table("goods").
+		Where(maps).
 		Joins("left join `goods_img` as gi on gi.goods_id = goods.id").
 		Offset(pageNum).
 		Limit(pageSize).
@@ -77,8 +78,17 @@ func DetailGoods(id int, fields string) (*Goods, bool) {
 		return &goods, flag
 	}
 
-	if gorm.IsRecordNotFoundError(err) {//查询结果不存在的情况
+	if gorm.IsRecordNotFoundError(err) { //查询结果不存在的情况
 		return nil, flag
 	}
 	return &goods, flag
+}
+
+func DeleteGoods(id int, tx *gorm.DB) (flag bool) {
+	var goods Goods
+	err := tx.Where("id = ?", id).Delete(&goods).Error
+	if err != nil {
+		flag = true
+	}
+	return flag
 }

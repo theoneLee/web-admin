@@ -113,3 +113,35 @@ func DetailGoods(c *gin.Context) {
 	appG.Response(http.StatusOK, code, data)
 
 }
+
+//删除文章
+func DeleteGoods(c *gin.Context) {
+	appG := app.Gin{C: c} //实例化响应对象
+	id := com.StrTo(c.Param("id")).MustInt()
+
+	valid := validation.Validation{}
+	valid.Min(id, 1, "id").Message("ID必须大于0")
+
+	code := e.INVALID_PARAMS
+	//获取商品详情
+	goodsService := goods.Goods{
+		Id: id,
+	}
+
+	if !valid.HasErrors() {
+		selectGoods, selectErr := goodsService.DetailGoods() //判断商品是否存在
+		deleteErr := goodsService.DeleteGoods()              //删除操作
+
+		if selectErr.Code == 0 && !deleteErr && selectGoods != nil {
+			code = e.SUCCESS
+		} else {
+			code = e.ERROR_SQL_FAIL
+		}
+	} else {
+		for _, err := range valid.Errors {
+			logging.Info(fmt.Sprintf("%s,%s", "err key is "+err.Key, "err Message is "+err.Message))
+		}
+	}
+	appG.Response(http.StatusOK, code, nil)
+
+}

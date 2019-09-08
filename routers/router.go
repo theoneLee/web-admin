@@ -39,6 +39,7 @@ func InitRouter() *gin.Engine {
 		apiAdmin.POST("/goods", admin.AddGoods)
 		apiAdmin.GET("/goods", admin.ListGoods)
 		apiAdmin.GET("/goods/:id", admin.DetailGoods)
+		apiAdmin.DELETE("/goods/:id", admin.DeleteGoods)
 
 	}
 

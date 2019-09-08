@@ -8,13 +8,13 @@ import (
 type GoodsImg struct {
 	Model
 	GoodsId int
-	Img string
+	Img     string
 }
 
-func AddGoodsImg(data map[string]interface{},tx *gorm.DB) (flag bool) {
-	goodsImg:=&GoodsImg{
-		GoodsId:   data["goods_id"].(int),
-		Img:  data["img"].(string),
+func AddGoodsImg(data map[string]interface{}, tx *gorm.DB) (flag bool) {
+	goodsImg := &GoodsImg{
+		GoodsId: data["goods_id"].(int),
+		Img:     data["img"].(string),
 	}
 	err := tx.Create(goodsImg).Error
 
@@ -25,4 +25,14 @@ func AddGoodsImg(data map[string]interface{},tx *gorm.DB) (flag bool) {
 	}
 
 	return false
+}
+
+//删除订单对应的图片
+func DeleteGoodsImg(id int, tx *gorm.DB) (flag bool) {
+	var goodsImg GoodsImg
+	err := tx.Debug().Where("goods_id = ?", id).Delete(goodsImg).Error
+	if err != nil  {
+		flag = true
+	}
+	return flag
 }
