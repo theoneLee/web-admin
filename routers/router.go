@@ -36,8 +36,8 @@ func InitRouter() *gin.Engine {
 		//apiAdmin.GET("/member/:id", admin.DetailMember)
 
 		//商品
-		//apiAdmin.POST("/goods", admin.AddGoods)
-		//apiAdmin.GET("/goods", admin.ListGoods)
+		apiAdmin.POST("/goods", admin.AddGoods)
+		apiAdmin.GET("/goods", admin.ListGoods)
 		//apiAdmin.GET("/goods/:id", admin.DetailGoods)
 
 	}

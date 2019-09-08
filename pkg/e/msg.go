@@ -13,6 +13,8 @@ var MsgFlags = map[int]string{
 	ERROR_AUTH:                     "用户名或密码不合法",
 	ERROR_REDIS:                    "Redis设置失败",
 	ERROR_SQL_FAIL:                 "操作数据库失败",
+	ERROR_UPLOAD_CHECK_IMAGE_FORMAT : "校验图片错误，图片格式或大小有问题",
+	ERROR_UPLOAD_CHECK_IMAGE_FAIL : "检测图片失败",
 }
 
 /**

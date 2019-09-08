@@ -1,8 +1,10 @@
 package member
 
 import (
+	"fmt"
 	"gitee.com/muzipp/Distribution/models"
 	"gitee.com/muzipp/Distribution/pkg/e"
+	"gitee.com/muzipp/Distribution/pkg/member"
 )
 
 type Member struct {
@@ -37,6 +39,7 @@ func (m *Member) AddMember() (err e.SelfError) {
 	data["bank"] = m.Bank
 	data["status"] = m.Status
 	data["level_id"] = m.LevelId
+	data["relation_id"] = m.RelationId
 
 	res := models.AddMember(data)
 
@@ -47,33 +50,26 @@ func (m *Member) AddMember() (err e.SelfError) {
 	return
 }
 
-func (m *Member) ListMembers() (members interface{}, err e.SelfError) {
-	fields:=[]string{"id"}
-	members, memberErr := models.ListMembers(m.Offset, m.Limit, m.getMaps(),fields)
+func (m *Member) ListMembers() (members []models.Member, err e.SelfError) {
+	fields := "member.id,member.name,member.status,member.sex,member.id_card," +
+		"member.birth,member.phone,member.spare_phone,member.email,member.bank," +
+		"member.bank_card,member.available_income,member.extract_income," +
+		"l.name as level_name,m1.name as relation_name," +
+		"count(o.id) as total_order_number,sum(o.reference_price) as total_order_income"
+	members, memberErr := models.ListMembers(m.Offset, m.Limit, m.getMaps(), fields)
+	fmt.Println(members)
 	if memberErr {
 		err.Code = e.ERROR_SQL_FAIL
 	}
 
-	return
-
-	/*tempRst := make(map[string]interface{})
-	for _, value := range memberRst {
-		y, _, _ := member.GetTimeFromStrDate(value.Birth)
-		tempRst["Id"] = value.ID
-		tempRst["name"] = value.Name
-		tempRst["IdCard"] = value.IdCard
-		tempRst["age"] = member.GetAge(y)
-		tempRst["phone"] = value.Phone
-		tempRst["email"] = value.Email
-		tempRst["bankCard"] = value.BankCard
-		tempRst["bank"] = value.Bank
-		tempRst["status"] = member.GetStatus(value.Status)
-		tempRst["sex"] = member.GetSex(value.Sex)
-		tempRst["sparePhone"] = value.SparePhone
-		members = append(members, tempRst)
+	for key, value := range members {
+		members[key].StatusDesc = member.GetStatus(value.Status)
+		members[key].SexDesc = member.GetSex(value.Sex)
+		members[key].Age = member.GetAge(member.GetTimeFromStrDate(value.Birth))
 	}
 
-	return*/
+	return
+
 }
 
 func (m *Member) CountMembers() (count int, err e.SelfError) {

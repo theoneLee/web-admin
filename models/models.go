@@ -11,7 +11,7 @@ import (
 	"gitee.com/muzipp/Distribution/pkg/setting"
 )
 
-var db *gorm.DB
+var Db *gorm.DB
 
 /**
 暂时立即是所有model公用的字段，声明成了一个struct，在后续使用的model声明的时候
@@ -19,9 +19,9 @@ var db *gorm.DB
 */
 type Model struct {
 	ID       int `gorm:"primary_key" `
-	CreateAt int
-	UpdateAt int
-	DeleteAt int
+	CreateAt int	`json:"omitempty"`
+	UpdateAt int	`json:"omitempty"`
+	DeleteAt int	`json:"omitempty"`
 }
 
 func Setup() {
@@ -37,7 +37,7 @@ func Setup() {
 	host = setting.DatabaseSetting.Host
 	tablePrefix = setting.DatabaseSetting.TablePrefix
 
-	db, err = gorm.Open(dbType, fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local",
+	Db, err = gorm.Open(dbType, fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local",
 		user,
 		password,
 		host,
@@ -52,23 +52,23 @@ func Setup() {
 	}
 
 	//全局禁用表名复数，不禁用的type User struct对应users表，开启之后对应的就是user表
-	db.SingularTable(true)
+	Db.SingularTable(true)
 
 	//设置最大空闲连接数
-	db.DB().SetMaxIdleConns(10)
+	Db.DB().SetMaxIdleConns(10)
 
 	//设置最大的打开连接数
-	db.DB().SetMaxOpenConns(100)
+	Db.DB().SetMaxOpenConns(100)
 
 	//注册callback代替指定的callback(BeforeCreate/BeforeUpdate)
-	db.Callback().Create().Replace("gorm:update_time_stamp", updateTimeStampForCreateCallback)
-	db.Callback().Update().Replace("gorm:update_time_stamp", updateTimeStampForUpdateCallback)
-	db.Callback().Delete().Replace("gorm:delete", deleteCallback)
+	Db.Callback().Create().Replace("gorm:update_time_stamp", updateTimeStampForCreateCallback)
+	Db.Callback().Update().Replace("gorm:update_time_stamp", updateTimeStampForUpdateCallback)
+	Db.Callback().Delete().Replace("gorm:delete", deleteCallback)
 }
 
 //关闭数据库连接
 func CloseDB() {
-	defer db.Close()
+	defer Db.Close()
 }
 
 //代替gorm自带的创建时，设置指定字段

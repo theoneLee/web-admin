@@ -4,21 +4,21 @@ import "gitee.com/muzipp/Distribution/pkg/logging"
 
 type Member struct {
 	Model
-	RelationId       int    //上级ID
-	RelationName     string `gorm:"-"` //上级名称
-	Name             string //姓名
-	Sex              int    //性别
-	IdCard           string //身份证
-	Birth            string //生日
-	Age              int    `gorm:"-"` //年龄
-	Phone            string //手机号
-	SparePhone       string //备用电话
-	Email            string //EMAIL
-	BankCard         string //账户
-	Bank             string //银行
-	LevelId          int    //等级ID
-	Level            Level
-	LevelName        string  `gorm:"-"` //等级文案
+	RelationId       int     `json:",omitempty"` //上级ID
+	RelationName     string  `gorm:"-"`          //上级名称
+	Name             string  `json:",omitempty"` //姓名
+	Sex              int     //性别
+	SexDesc          string  `gorm:"-"`
+	IdCard           string  //身份证
+	Birth            string  //生日
+	Age              int     `gorm:"-"` //年龄
+	Phone            string  //手机号
+	SparePhone       string  //备用电话
+	Email            string  //EMAIL
+	BankCard         string  //账户
+	Bank             string  //银行ß
+	LevelId          int     //等级ID
+	LevelName        string  `gorm:"-"`
 	Status           int     //状态
 	StatusDesc       string  `gorm:"-"` //状态对应的文案
 	AvailableIncome  float64 //可提取佣金
@@ -29,7 +29,7 @@ type Member struct {
 }
 
 func AddMember(data map[string]interface{}) (flag bool) {
-	err := db.Create(&Member{
+	err := Db.Create(&Member{
 		RelationId: data["relation_id"].(int),
 		Name:       data["name"].(string),
 		Sex:        data["sex"].(int),
@@ -53,9 +53,17 @@ func AddMember(data map[string]interface{}) (flag bool) {
 	return
 }
 
-func ListMembers(pageNum int, pageSize int, maps interface{}, fields []string) (members []Member, flag bool) {
+func ListMembers(pageNum int, pageSize int, maps interface{}, fields string) (members []Member, flag bool) {
 
-	err := db.Preload("Level").Select(fields).Where(maps).Offset(pageNum).Limit(pageSize).Find(&members).Error
+	err := Db.Table("member").
+		Joins("left join `level` as l on l.id = member.level_id").
+		Joins("left join `member` as m1 on m1.id = member.relation_id").
+		Joins("left join `order` as o on o.member_id = member.id").
+		Offset(pageNum).
+		Limit(pageSize).
+		Select(fields).
+		Group("member.id").
+		Scan(&members).Error
 	if err != nil {
 		flag = true
 		logging.Info("会员列表错误", err) //记录错误日志
@@ -65,7 +73,7 @@ func ListMembers(pageNum int, pageSize int, maps interface{}, fields []string) (
 }
 
 func CountMembers(maps interface{}) (count int, flag bool) {
-	err := db.Model(&Member{}).Where(maps).Count(&count).Error
+	err := Db.Model(&Member{}).Where(maps).Count(&count).Error
 	if err != nil {
 		flag = true
 		logging.Info("会员人数错误", err) //记录错误日志

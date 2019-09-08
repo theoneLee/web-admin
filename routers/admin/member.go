@@ -18,7 +18,7 @@ import (
 func AddMember(c *gin.Context) {
 	appG := app.Gin{C: c} //实例化响应对象
 	sex := com.StrTo(c.DefaultPostForm("sex", "0")).MustInt()
-	levelId := com.StrTo(c.DefaultPostForm("level_id", "0")).MustInt()
+	levelId := com.StrTo(c.DefaultPostForm("level_id", "1")).MustInt()
 	name := c.DefaultPostForm("name", "")
 	idCard := c.DefaultPostForm("id_card", "")
 	birth := c.DefaultPostForm("birth", "")
@@ -27,6 +27,7 @@ func AddMember(c *gin.Context) {
 	email := c.DefaultPostForm("email", "")
 	bankCard := c.DefaultPostForm("bank_card", "")
 	bank := c.DefaultPostForm("bank", "")
+	relationId := com.StrTo(c.DefaultPostForm("relation_id", "0")).MustInt()
 
 	valid := validation.Validation{}
 	valid.Required(sex, "sex").Message("性别不能为空")
@@ -56,7 +57,7 @@ func AddMember(c *gin.Context) {
 			BankCard:   bankCard,
 			Bank:       bank,
 			Status:     1,
-			RelationId: 0,
+			RelationId: relationId,
 		}
 		err := memberService.AddMember()
 

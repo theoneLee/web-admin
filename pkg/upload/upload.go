@@ -2,14 +2,11 @@ package upload
 
 import (
 	"fmt"
-	"log"
-	"mime/multipart"
 	"os"
 	"path"
 	"strings"
 
 	"gitee.com/muzipp/Distribution/pkg/file"
-	"gitee.com/muzipp/Distribution/pkg/logging"
 	"gitee.com/muzipp/Distribution/pkg/setting"
 	"gitee.com/muzipp/Distribution/pkg/util"
 )
@@ -58,15 +55,8 @@ func CheckImageExt(fileName string) bool {
 }
 
 //检测文件大小
-func CheckImageSize(f multipart.File) bool {
-	size, err := file.GetSize(f)
-	if err != nil {
-		log.Println(err)
-		logging.Warn(err)
-		return false
-	}
-
-	return size <= setting.AppSetting.ImageMaxSize
+func CheckImageSize(size int64) bool {
+	return int(size) <= setting.AppSetting.ImageMaxSize
 }
 
 //检查图片
