@@ -32,11 +32,13 @@ func InitRouter() *gin.Engine {
 
 	//{}代表作用域，作用内的变量只在作用域内有效，作用域内的a变量是没法在作用域外访问的
 	{
+		apiAdmin.POST("/logout", common.Logout)
+
 		//会员
 		apiAdmin.POST("/member", admin.AddMember)
-		apiAdmin.POST("/logout", admin.Logout)
 		apiAdmin.GET("/member", admin.ListMembers)
-		apiAdmin.PUT("/member/statusChange", admin.MemberStatusChange)
+		apiAdmin.POST("/member/statusChange", admin.MemberStatusChange)
+		apiAdmin.PUT("/member/:id", admin.EditMember)
 		//apiAdmin.GET("/member/:id", admin.DetailMember)
 
 		//商品

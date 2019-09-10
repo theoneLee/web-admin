@@ -151,18 +151,81 @@ func MemberStatusChange(c *gin.Context) {
 
 }
 
-//注销用户
-func Logout(c *gin.Context) {
+
+func EditMember(c *gin.Context) {
 	appG := app.Gin{C: c} //实例化响应对象
-	memberService := member.Member{}
-	err := memberService.Logout()
+	id := com.StrTo(c.Param("id")).MustInt()
+	sex := com.StrTo(c.DefaultPostForm("sex", "0")).MustInt()
+	levelId := com.StrTo(c.DefaultPostForm("level_id", "1")).MustInt()
+	name := c.DefaultPostForm("name", "")
+	idCard := c.DefaultPostForm("id_card", "")
+	birth := c.DefaultPostForm("birth", "")
+	phone := c.DefaultPostForm("phone", "")
+	sparePhone := c.DefaultPostForm("spare_phone", "")
+	email := c.DefaultPostForm("email", "")
+	bankCard := c.DefaultPostForm("bank_card", "")
+	bank := c.DefaultPostForm("bank", "")
+	password := c.DefaultPostForm("password", "")
+	isOperate := com.StrTo(c.DefaultPostForm("is_operate", "0")).MustInt()
+	operateAddress := c.DefaultPostForm("operate_address", "")
 
-	code := e.SUCCESS
+	valid := validation.Validation{}
+	valid.Required(sex, "sex").Message("性别不能为空")
+	valid.Required(id, "id").Message("会员ID不能为空")
+	valid.Required(name, "name").Message("姓名不能为空")
+	valid.Required(idCard, "id_card").Message("身份证不能为空")
+	valid.Required(birth, "birth").Message("生日不能为空")
+	valid.Required(phone, "phone").Message("电话地址不能为空")
+	valid.Required(sparePhone, "spare_phone").Message("备用电话不能为空")
+	valid.Required(email, "email").Message("邮箱不能为空")
+	valid.Required(bankCard, "bank_card").Message("银行卡号不能为空")
+	valid.Required(bank, "bank").Message("开户行不能为空")
 
-	if err.Code != 0 {
-		code = err.Code
+	//设置返回数据
+	data := make(map[string]interface{})
+
+	code := e.INVALID_PARAMS
+	if !valid.HasErrors() {
+
+		//校验用户是否存在
+		user := models.CheckUser(id)
+		if user.ID == 0 {
+			code = e.ERROR_USER
+			goto End
+		}
+
+		memberService := member.Member{
+			Sex:            sex,
+			LevelId:        levelId,
+			Name:           name,
+			IdCard:         idCard,
+			Birth:          birth,
+			Phone:          phone,
+			SparePhone:     sparePhone,
+			Email:          email,
+			BankCard:       bankCard,
+			Bank:           bank,
+			Status:         1,
+			RelationId:     common.SelfUser.Id,
+			PassWord:       password,
+			IsOperate:      isOperate,
+			OperateAddress: operateAddress,
+		}
+
+		err := memberService.EditMember(id)
+
+		if err.Code == 0 {
+			code = e.SUCCESS
+		}
+
+	} else {
+		for _, err := range valid.Errors {
+			logging.Info(fmt.Sprintf("%s,%s", "err key is "+err.Key, "err Message is "+err.Message))
+		}
 	}
-	appG.Response(http.StatusOK, code, nil)
+
+End:
+	appG.Response(http.StatusOK, code, data)
 
 }
 

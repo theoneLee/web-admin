@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"gitee.com/muzipp/Distribution/models"
+	"gitee.com/muzipp/Distribution/pkg/app"
 	"gitee.com/muzipp/Distribution/pkg/e"
 	"gitee.com/muzipp/Distribution/pkg/gredis"
 	"gitee.com/muzipp/Distribution/pkg/logging"
 	"gitee.com/muzipp/Distribution/pkg/util"
+	"gitee.com/muzipp/Distribution/service/admin/common"
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -101,4 +103,18 @@ End:
 		"msg":  e.GetMsg(code),
 		"data": data,
 	})
+}
+
+//注销用户
+func Logout(c *gin.Context) {
+	appG := app.Gin{C: c} //实例化响应对象
+	err := common.Logout(SelfToken, SelfUser.Id)
+
+	code := e.SUCCESS
+
+	if err.Code != 0 {
+		code = err.Code
+	}
+	appG.Response(http.StatusOK, code, nil)
+
 }

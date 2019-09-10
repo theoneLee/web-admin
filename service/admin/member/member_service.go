@@ -1,13 +1,9 @@
 package member
 
 import (
-	"fmt"
 	"gitee.com/muzipp/Distribution/models"
 	"gitee.com/muzipp/Distribution/pkg/e"
-	"gitee.com/muzipp/Distribution/pkg/gredis"
 	"gitee.com/muzipp/Distribution/pkg/member"
-	"gitee.com/muzipp/Distribution/routers/common"
-	"strconv"
 )
 
 type Member struct {
@@ -47,7 +43,6 @@ func (m *Member) AddMember() (err e.SelfError) {
 	data["bank"] = m.Bank
 	data["status"] = m.Status
 	data["level_id"] = m.LevelId
-	data["relation_id"] = m.RelationId
 	data["username"] = m.Username
 	data["password"] = m.PassWord
 	data["is_operate"] = m.IsOperate
@@ -61,6 +56,33 @@ func (m *Member) AddMember() (err e.SelfError) {
 
 	return
 }
+
+func (m *Member) EditMember(id int) (err e.SelfError) {
+	data := make(map[string]interface{})
+	data["name"] = m.Name
+	data["sex"] = m.Sex
+	data["id_card"] = m.IdCard
+	data["birth"] = m.Birth
+	data["phone"] = m.Phone
+	data["spare_phone"] = m.SparePhone
+	data["email"] = m.Email
+	data["bank_card"] = m.BankCard
+	data["bank"] = m.Bank
+	data["status"] = m.Status
+	data["level_id"] = m.LevelId
+	data["password"] = m.PassWord
+	data["is_operate"] = m.IsOperate
+	data["operate_address"] = m.OperateAddress
+
+	res := models.EditMember(data, id)
+
+	if res { //添加会员失败
+		err.Code = e.ERROR_SQL_FAIL
+	}
+
+	return
+}
+
 
 func (m *Member) ListMembers() (members []models.Member, err e.SelfError) {
 	fields := "member.id,member.name,member.status,member.sex,member.id_card," +
@@ -125,21 +147,4 @@ func (m *Member) getMaps() map[string]interface{} {
 	maps := make(map[string]interface{})
 	maps["delete_at"] = 0
 	return maps
-}
-
-func (m *Member) Logout() (err e.SelfError) {
-	fmt.Println("token is ", "user_token" + common.SelfToken)
-	fmt.Println("user id is ", "user_id" + strconv.Itoa(common.SelfUser.Id))
-
-	_, tokenErr := gredis.Delete("user_token" + common.SelfToken)
-	_, userErr := gredis.Delete("user_id" + strconv.Itoa(common.SelfUser.Id))
-
-	fmt.Println("token error is", tokenErr)
-	fmt.Println("user error is", userErr)
-
-	if tokenErr != nil || userErr != nil {
-		err.Code = e.ERROR_REDIS
-	}
-
-	return
 }
