@@ -110,8 +110,7 @@ func (x *atomicClsErr) store(p clsErr) {
 }
 
 // --------------------------
-type atomicTypeInfoSlice struct {
-	// expected to be 2 words
+type atomicTypeInfoSlice struct { // expected to be 2 words
 	v atomic.Value
 }
 
@@ -127,8 +126,7 @@ func (x *atomicTypeInfoSlice) store(p []rtid2ti) {
 }
 
 // --------------------------
-type atomicRtidFnSlice struct {
-	// expected to be 2 words
+type atomicRtidFnSlice struct { // expected to be 2 words
 	v atomic.Value
 }
 
