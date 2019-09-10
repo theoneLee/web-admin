@@ -19,9 +19,9 @@ var Db *gorm.DB
 */
 type Model struct {
 	ID       int `gorm:"primary_key" `
-	CreateAt int	`json:"omitempty"`
-	UpdateAt int	`json:"omitempty"`
-	DeleteAt int	`json:"omitempty"`
+	CreateAt int `json:"omitempty"`
+	UpdateAt int `json:"omitempty"`
+	DeleteAt int `json:"omitempty"`
 }
 
 func Setup() {

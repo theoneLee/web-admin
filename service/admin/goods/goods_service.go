@@ -150,7 +150,7 @@ func (g *Goods) DeleteGoods() (flag bool) {
 	tx := models.Db.Begin()
 
 	goodsErr := models.DeleteGoods(g.Id, tx)
-	goodsImgErr:=models.DeleteGoodsImg(g.Id, tx)
+	goodsImgErr := models.DeleteGoodsImg(g.Id, tx)
 
 	if goodsErr || goodsImgErr {
 		tx.Rollback()

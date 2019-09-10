@@ -7,44 +7,52 @@ import (
 
 type Member struct {
 	Model
-	RelationId       int     `json:",omitempty"` //上级ID
-	RelationName     string  `gorm:"-"`          //上级名称
-	Name             string  `json:",omitempty"` //姓名
-	Sex              int     //性别
-	SexDesc          string  `gorm:"-"`
-	IdCard           string  //身份证
-	Birth            string  //生日
-	Age              int     `gorm:"-"` //年龄
-	Phone            string  //手机号
-	SparePhone       string  //备用电话
-	Email            string  //EMAIL
-	BankCard         string  //账户
-	Bank             string  //银行ß
-	LevelId          int     //等级ID
-	LevelName        string  `gorm:"-"`
-	Status           int     //状态
-	StatusDesc       string  `gorm:"-"` //状态对应的文案
-	AvailableIncome  float64 //可提取佣金
-	ExtractIncome    float64 //已提取佣金
+	RelationId       int    `json:",omitempty"` //上级ID
+	RelationName     string `gorm:"-"`          //上级名称
+	Name             string `json:",omitempty"` //姓名
+	Sex              int                        //性别
+	SexDesc          string `gorm:"-"`
+	IdCard           string         //身份证
+	Birth            string         //生日
+	Age              int `gorm:"-"` //年龄
+	Phone            string         //手机号
+	SparePhone       string         //备用电话
+	Email            string         //EMAIL
+	BankCard         string         //账户
+	Bank             string         //银行ß
+	LevelId          int            //等级ID
+	LevelName        string `gorm:"-"`
+	Status           int                //状态
+	StatusDesc       string `gorm:"-"`  //状态对应的文案
+	AvailableIncome  float64            //可提取佣金
+	ExtractIncome    float64            //已提取佣金
 	TotalOrderIncome float64 `gorm:"-"` //订单总额
 	TotalOrderNumber int     `gorm:"-"` //订单数量
-	ExpiredTime      int     //到期时间
+	ExpiredTime      int                //到期时间
+	Username         string
+	Password         string
+	IsOperate        int
+	OperateAddress   string
 }
 
 func AddMember(data map[string]interface{}) (flag bool) {
 	err := Db.Create(&Member{
-		RelationId: data["relation_id"].(int),
-		Name:       data["name"].(string),
-		Sex:        data["sex"].(int),
-		IdCard:     data["id_card"].(string),
-		Birth:      data["birth"].(string),
-		Phone:      data["phone"].(string),
-		SparePhone: data["spare_phone"].(string),
-		Email:      data["email"].(string),
-		BankCard:   data["bank_card"].(string),
-		Bank:       data["bank"].(string),
-		Status:     data["status"].(int),
-		LevelId:    data["level_id"].(int),
+		RelationId:     data["relation_id"].(int),
+		Name:           data["name"].(string),
+		Sex:            data["sex"].(int),
+		IdCard:         data["id_card"].(string),
+		Birth:          data["birth"].(string),
+		Phone:          data["phone"].(string),
+		SparePhone:     data["spare_phone"].(string),
+		Email:          data["email"].(string),
+		BankCard:       data["bank_card"].(string),
+		Bank:           data["bank"].(string),
+		Status:         data["status"].(int),
+		LevelId:        data["level_id"].(int),
+		Username:       data["username"].(string),
+		Password:       data["password"].(string),
+		OperateAddress: data["is_operate"].(string),
+		IsOperate:      data["operate_address"].(int),
 	}).Error
 
 	if err != nil { //添加会员失败
@@ -115,5 +123,18 @@ func CountMembers(maps interface{}) (count int, flag bool) {
 		logging.Info("会员人数错误", err) //记录错误日志
 		return
 	}
+	return
+}
+
+func CheckAuth(username string, status int) (member Member) {
+
+	/**
+	根据用户名和密码查询对应的用户记录
+	*/
+	memberCondition := Member{Username: username}
+	if status != 0 {
+		memberCondition.Status = status
+	}
+	Db.Select([]string{"id", "username", "password", "status", "name"}).Where(memberCondition).First(&member)
 	return
 }

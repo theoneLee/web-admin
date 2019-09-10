@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"gitee.com/muzipp/Distribution/pkg/setting"
-	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go"
 )
 
 /**

@@ -31,7 +31,7 @@ func AddGoodsImg(data map[string]interface{}, tx *gorm.DB) (flag bool) {
 func DeleteGoodsImg(id int, tx *gorm.DB) (flag bool) {
 	var goodsImg GoodsImg
 	err := tx.Debug().Where("goods_id = ?", id).Delete(goodsImg).Error
-	if err != nil  {
+	if err != nil {
 		flag = true
 	}
 	return flag

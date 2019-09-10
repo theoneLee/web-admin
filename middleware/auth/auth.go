@@ -1,8 +1,10 @@
 package auth
 
 import (
+	"encoding/json"
 	"gitee.com/muzipp/Distribution/pkg/e"
 	"gitee.com/muzipp/Distribution/pkg/gredis"
+	"gitee.com/muzipp/Distribution/routers/common"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -29,6 +31,8 @@ func Auth() gin.HandlerFunc {
 		} else {
 			//从redis中根据token获取value，判断token是否失效
 			redisUser, err := gredis.Get("user_token" + token)
+			redisUserGetUser, _ := gredis.Get("user_token" + token)
+			_ = json.Unmarshal(redisUserGetUser, &common.SelfUser)
 			if redisUser == nil || err != nil { //token验证失败
 				code = e.ERROR_AUTH_CHECK_TOKEN_FAIL
 			}

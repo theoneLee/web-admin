@@ -1,28 +1,31 @@
 package member
 
 import (
-	"fmt"
 	"gitee.com/muzipp/Distribution/models"
 	"gitee.com/muzipp/Distribution/pkg/e"
 	"gitee.com/muzipp/Distribution/pkg/member"
 )
 
 type Member struct {
-	Id         int
-	RelationId int
-	Name       string
-	Sex        int
-	IdCard     string
-	Birth      string
-	Phone      string
-	SparePhone string
-	Email      string
-	BankCard   string
-	Bank       string
-	Status     int
-	LevelId    int
-	Offset     int
-	Limit      int
+	Id             int
+	RelationId     int
+	Name           string
+	Sex            int
+	IdCard         string
+	Birth          string
+	Phone          string
+	SparePhone     string
+	Email          string
+	BankCard       string
+	Bank           string
+	Username       string
+	PassWord       string
+	Status         int
+	IsOperate      int
+	OperateAddress string
+	LevelId        int
+	Offset         int
+	Limit          int
 }
 
 //添加会员代码
@@ -41,6 +44,10 @@ func (m *Member) AddMember() (err e.SelfError) {
 	data["status"] = m.Status
 	data["level_id"] = m.LevelId
 	data["relation_id"] = m.RelationId
+	data["username"] = m.Username
+	data["password"] = m.PassWord
+	data["is_operate"] = m.IsOperate
+	data["operate_address"] = m.OperateAddress
 
 	res := models.AddMember(data)
 
@@ -58,7 +65,6 @@ func (m *Member) ListMembers() (members []models.Member, err e.SelfError) {
 		"l.name as level_name,m1.name as relation_name," +
 		"count(o.id) as total_order_number,sum(o.reference_price) as total_order_income"
 	members, memberErr := models.ListMembers(m.Offset, m.Limit, m.getMaps(), fields)
-	fmt.Println(members)
 	if memberErr {
 		err.Code = e.ERROR_SQL_FAIL
 	}
@@ -80,7 +86,7 @@ func (m *Member) StatusChange() (err e.SelfError) {
 	maps := m.getMaps()
 	maps["id"] = m.Id
 
-	selectMember, selectErr := models.DetailMember(m.Id, "id,status")//获取订单详情
+	selectMember, selectErr := models.DetailMember(m.Id, "id,status") //获取订单详情
 
 	if selectErr || selectMember == nil {
 		err.Code = e.ERROR_SQL_FAIL

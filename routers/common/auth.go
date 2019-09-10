@@ -21,10 +21,12 @@ type auth struct {
 
 type UserSession struct {
 	Username string
-	Status   int
+	Name     string
+	Id       int
 }
 
 var selfToken string
+var SelfUser UserSession
 
 //登录接口
 func GetAuth(c *gin.Context) {
@@ -42,14 +44,17 @@ func GetAuth(c *gin.Context) {
 	data := make(map[string]interface{})
 	code := e.INVALID_PARAMS
 	if ok {
-		user := models.CheckAuth(username)
+		user := models.CheckAuth(username, 1)
 		if user.ID > 0 && user.Password == util.EncodeMD5(password) { //用户存在且账号密码正确的情况
 
 			//获取Redis中已经保存的token
 			redisUserGetToken, _ := gredis.Get("user_id" + strconv.Itoa(user.ID))
 			_ = json.Unmarshal(redisUserGetToken, &selfToken)
 			if selfToken != "" {
+				redisUserGetUser, _ := gredis.Get("user_token" + selfToken)
+				_ = json.Unmarshal(redisUserGetUser, &SelfUser)
 				data["token"] = selfToken
+				data["name"] = SelfUser.Name
 				code = e.SUCCESS
 				goto End
 			}
@@ -64,8 +69,7 @@ func GetAuth(c *gin.Context) {
 				code = e.SUCCESS
 
 				//token记录在Redis中，用来验证token登录
-				userInfo := UserSession{Username: username, Status: user.Status}
-				redisTokenError := gredis.Set("user_token"+token, userInfo, 24*60*60)
+				redisTokenError := gredis.Set("user_token"+token, UserSession{Username: username, Id: user.ID, Name: user.Name}, 24*60*60)
 				redisUserError := gredis.Set("user_id"+strconv.Itoa(user.ID), token, 24*60*60)
 
 				if redisTokenError != nil || redisUserError != nil {
@@ -74,6 +78,7 @@ func GetAuth(c *gin.Context) {
 					logging.Info(fmt.Sprintf("%s,%s", "redis user error is ", redisUserError))
 				} else {
 					data["token"] = token
+					data["name"] = user.Name
 				}
 			}
 
