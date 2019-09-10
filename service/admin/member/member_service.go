@@ -1,9 +1,13 @@
 package member
 
 import (
+	"fmt"
 	"gitee.com/muzipp/Distribution/models"
 	"gitee.com/muzipp/Distribution/pkg/e"
+	"gitee.com/muzipp/Distribution/pkg/gredis"
 	"gitee.com/muzipp/Distribution/pkg/member"
+	"gitee.com/muzipp/Distribution/routers/common"
+	"strconv"
 )
 
 type Member struct {
@@ -121,4 +125,21 @@ func (m *Member) getMaps() map[string]interface{} {
 	maps := make(map[string]interface{})
 	maps["delete_at"] = 0
 	return maps
+}
+
+func (m *Member) Logout() (err e.SelfError) {
+	fmt.Println("token is ", "user_token" + common.SelfToken)
+	fmt.Println("user id is ", "user_id" + strconv.Itoa(common.SelfUser.Id))
+
+	_, tokenErr := gredis.Delete("user_token" + common.SelfToken)
+	_, userErr := gredis.Delete("user_id" + strconv.Itoa(common.SelfUser.Id))
+
+	fmt.Println("token error is", tokenErr)
+	fmt.Println("user error is", userErr)
+
+	if tokenErr != nil || userErr != nil {
+		err.Code = e.ERROR_REDIS
+	}
+
+	return
 }

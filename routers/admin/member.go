@@ -151,6 +151,21 @@ func MemberStatusChange(c *gin.Context) {
 
 }
 
+//注销用户
+func Logout(c *gin.Context) {
+	appG := app.Gin{C: c} //实例化响应对象
+	memberService := member.Member{}
+	err := memberService.Logout()
+
+	code := e.SUCCESS
+
+	if err.Code != 0 {
+		code = err.Code
+	}
+	appG.Response(http.StatusOK, code, nil)
+
+}
+
 //
 ////会员详情
 //func DetailMember(c *gin.Context) {

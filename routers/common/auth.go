@@ -25,7 +25,7 @@ type UserSession struct {
 	Id       int
 }
 
-var selfToken string
+var SelfToken string
 var SelfUser UserSession
 
 //登录接口
@@ -49,11 +49,11 @@ func GetAuth(c *gin.Context) {
 
 			//获取Redis中已经保存的token
 			redisUserGetToken, _ := gredis.Get("user_id" + strconv.Itoa(user.ID))
-			_ = json.Unmarshal(redisUserGetToken, &selfToken)
-			if selfToken != "" {
-				redisUserGetUser, _ := gredis.Get("user_token" + selfToken)
+			_ = json.Unmarshal(redisUserGetToken, &SelfToken)
+			if SelfToken != "" {
+				redisUserGetUser, _ := gredis.Get("user_token" + SelfToken)
 				_ = json.Unmarshal(redisUserGetUser, &SelfUser)
-				data["token"] = selfToken
+				data["token"] = SelfToken
 				data["name"] = SelfUser.Name
 				code = e.SUCCESS
 				goto End

@@ -32,6 +32,7 @@ func Auth() gin.HandlerFunc {
 			//从redis中根据token获取value，判断token是否失效
 			redisUser, err := gredis.Get("user_token" + token)
 			redisUserGetUser, _ := gredis.Get("user_token" + token)
+			common.SelfToken = token
 			_ = json.Unmarshal(redisUserGetUser, &common.SelfUser)
 			if redisUser == nil || err != nil { //token验证失败
 				code = e.ERROR_AUTH_CHECK_TOKEN_FAIL
