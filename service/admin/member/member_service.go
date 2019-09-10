@@ -63,7 +63,7 @@ func (m *Member) ListMembers() (members []models.Member, err e.SelfError) {
 		"member.birth,member.phone,member.spare_phone,member.email,member.bank," +
 		"member.bank_card,member.available_income,member.extract_income," +
 		"l.name as level_name,m1.name as relation_name," +
-		"count(o.id) as total_order_number,sum(o.reference_price) as total_order_income"
+		"count(o.id) as total_order_number,sum(o.reference_price) as total_order_income,member.integral"
 	members, memberErr := models.ListMembers(m.Offset, m.Limit, m.getMaps(), fields)
 	if memberErr {
 		err.Code = e.ERROR_SQL_FAIL

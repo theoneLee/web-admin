@@ -33,6 +33,7 @@ type Member struct {
 	Password         string
 	IsOperate        int
 	OperateAddress   string
+	Integral         int
 }
 
 func AddMember(data map[string]interface{}) (flag bool) {
