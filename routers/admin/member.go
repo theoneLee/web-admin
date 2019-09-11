@@ -34,6 +34,7 @@ func AddMember(c *gin.Context) {
 	username := c.DefaultPostForm("username", "")
 	isOperate := com.StrTo(c.DefaultPostForm("is_operate", "0")).MustInt()
 	operateAddress := c.DefaultPostForm("operate_address", "")
+	remark := c.DefaultPostForm("remark", "")
 
 	valid := validation.Validation{}
 	valid.Required(sex, "sex").Message("性别不能为空")
@@ -47,6 +48,7 @@ func AddMember(c *gin.Context) {
 	valid.Required(bank, "bank").Message("开户行不能为空")
 	valid.Required(password, "password").Message("密码不能为空")
 	valid.Required(username, "username").Message("用户名不能为空")
+	valid.Required(remark, "remark").Message("备注不能为空")
 
 	//设置返回数据
 	data := make(map[string]interface{})
@@ -78,6 +80,7 @@ func AddMember(c *gin.Context) {
 			PassWord:       util.EncodeMD5(password),
 			IsOperate:      isOperate,
 			OperateAddress: operateAddress,
+			Remark:         remark,
 		}
 		err := memberService.AddMember()
 
@@ -151,7 +154,6 @@ func MemberStatusChange(c *gin.Context) {
 
 }
 
-
 func EditMember(c *gin.Context) {
 	appG := app.Gin{C: c} //实例化响应对象
 	id := com.StrTo(c.Param("id")).MustInt()
@@ -168,6 +170,7 @@ func EditMember(c *gin.Context) {
 	password := c.DefaultPostForm("password", "")
 	isOperate := com.StrTo(c.DefaultPostForm("is_operate", "0")).MustInt()
 	operateAddress := c.DefaultPostForm("operate_address", "")
+	remark := c.DefaultPostForm("remark", "")
 
 	valid := validation.Validation{}
 	valid.Required(sex, "sex").Message("性别不能为空")
@@ -180,6 +183,7 @@ func EditMember(c *gin.Context) {
 	valid.Required(email, "email").Message("邮箱不能为空")
 	valid.Required(bankCard, "bank_card").Message("银行卡号不能为空")
 	valid.Required(bank, "bank").Message("开户行不能为空")
+	valid.Required(remark, "remark").Message("备注不能为空")
 
 	//设置返回数据
 	data := make(map[string]interface{})
@@ -210,6 +214,7 @@ func EditMember(c *gin.Context) {
 			PassWord:       password,
 			IsOperate:      isOperate,
 			OperateAddress: operateAddress,
+			Remark:         remark,
 		}
 
 		err := memberService.EditMember(id)

@@ -4,31 +4,36 @@ import (
 	"gitee.com/muzipp/Distribution/models"
 	"gitee.com/muzipp/Distribution/pkg/e"
 	seleGoods "gitee.com/muzipp/Distribution/pkg/goods"
-	"gitee.com/muzipp/Distribution/pkg/upload"
-	"github.com/gin-gonic/gin"
-	"mime/multipart"
 	"strings"
 )
 
 type Goods struct {
-	Id     int
-	Name   string
-	Stock  int
-	Price  float64
-	Remark string
-	Status int
-	Images []string
-	Offset int
-	Limit  int
+	Id            int
+	Name          string
+	Stock         int
+	Price         float64
+	Remark        string
+	Image         string
+	Integral      int
+	Description   string
+	Specification string
+	Status        int
+	Images        []string
+	Offset        int
+	Limit         int
 }
 
-func (g *Goods) AddGoods(image []*multipart.FileHeader) (err e.SelfError) {
+func (g *Goods) AddGoods() (err e.SelfError) {
 	data := make(map[string]interface{})
 	data["name"] = g.Name
 	data["remark"] = g.Remark
 	data["price"] = g.Price
 	data["stock"] = g.Stock
 	data["status"] = g.Status
+	data["description"] = g.Description
+	data["integral"] = g.Integral
+	data["status"] = g.Status
+	data["specification"] = g.Specification
 
 	//开启事务
 	tx := models.Db.Begin()
@@ -40,14 +45,7 @@ func (g *Goods) AddGoods(image []*multipart.FileHeader) (err e.SelfError) {
 		return
 	}
 
-	//添加商品基础信息成功的情况，上传图片，记录对应的商品图片信息
-	imageUrl, imageErr := uploadImages(image)
-
-	if imageErr.Code != 0 { //图片上传失败
-		tx.Rollback() //事务回滚
-		err.Code = imageErr.Code
-		return
-	}
+	imageUrl := strings.Split(g.Image, ",")
 
 	//遍历图片
 	dataImage := make(map[string]interface{})
@@ -63,41 +61,6 @@ func (g *Goods) AddGoods(image []*multipart.FileHeader) (err e.SelfError) {
 	}
 
 	tx.Commit() //事务提交
-	return
-}
-
-func uploadImages(images []*multipart.FileHeader) (imageUrl []string, err e.SelfError) {
-	//获取上传图片的图片名称
-	var c *gin.Context
-
-	for _, image := range images {
-		imageName := upload.GetImageName(image.Filename)
-
-		//获取图片完整路径
-		fullPath := upload.GetImageFullPath()
-
-		//获取图片保存路径
-		savePath := upload.GetImagePath()
-
-		//获取完整路径+文件名
-		src := fullPath + imageName
-
-		//检测文件后缀和文件大小
-		if !upload.CheckImageExt(imageName) || !upload.CheckImageSize(image.Size) {
-			err.Code = e.ERROR_UPLOAD_CHECK_IMAGE_FORMAT
-		} else {
-			//检测图片
-			imageError := upload.CheckImage(fullPath)
-			if imageError != nil {
-				err.Code = e.ERROR_UPLOAD_CHECK_IMAGE_FAIL
-			} else if imageSaveError := c.SaveUploadedFile(image, src); imageSaveError != nil {
-				err.Code = e.ERROR_UPLOAD_SAVE_IMAGE_FAIL
-			} else {
-				imageUrl = append(imageUrl, savePath+imageName)
-			}
-		}
-	}
-
 	return
 }
 
@@ -158,6 +121,54 @@ func (g *Goods) DeleteGoods() (flag bool) {
 		tx.Commit()
 	}
 	return goodsErr || goodsImgErr
+}
+
+func (g *Goods) EditGoods(id int) (err e.SelfError) {
+	data := make(map[string]interface{})
+	data["name"] = g.Name
+	data["remark"] = g.Remark
+	data["price"] = g.Price
+	data["stock"] = g.Stock
+	data["status"] = g.Status
+	data["description"] = g.Description
+	data["integral"] = g.Integral
+	data["status"] = g.Status
+	data["specification"] = g.Specification
+
+	//开启事务
+	tx := models.Db.Begin()
+	res := models.EditGoods(data, tx, id) //添加商品
+
+	if res { //添加商品失败
+		tx.Rollback() //事务回滚
+		err.Code = e.ERROR_SQL_FAIL
+		return
+	}
+
+	deleteImgErr := models.DeleteGoodsImg(id, tx)
+	if deleteImgErr { //添加商品失败
+		tx.Rollback() //事务回滚
+		err.Code = e.ERROR_SQL_FAIL
+		return
+	}
+
+	imageUrl := strings.Split(g.Image, ",")
+
+	//遍历图片
+	dataImage := make(map[string]interface{})
+	for _, value := range imageUrl {
+		dataImage["goods_id"] = id
+		dataImage["img"] = value
+		res := models.AddGoodsImg(dataImage, tx)
+		if res { //添加商品图片失败
+			tx.Rollback() //事务回滚
+			err.Code = e.ERROR_SQL_FAIL
+			return
+		}
+	}
+
+	tx.Commit() //事务提交
+	return
 }
 
 //封装搜索条件

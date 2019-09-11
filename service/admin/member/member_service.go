@@ -20,6 +20,7 @@ type Member struct {
 	Bank           string
 	Username       string
 	PassWord       string
+	Remark         string
 	Status         int
 	IsOperate      int
 	OperateAddress string
@@ -47,6 +48,7 @@ func (m *Member) AddMember() (err e.SelfError) {
 	data["password"] = m.PassWord
 	data["is_operate"] = m.IsOperate
 	data["operate_address"] = m.OperateAddress
+	data["remark"] = m.Remark
 
 	res := models.AddMember(data)
 
@@ -73,6 +75,7 @@ func (m *Member) EditMember(id int) (err e.SelfError) {
 	data["password"] = m.PassWord
 	data["is_operate"] = m.IsOperate
 	data["operate_address"] = m.OperateAddress
+	data["remark"] = m.Remark
 
 	res := models.EditMember(data, id)
 
@@ -82,7 +85,6 @@ func (m *Member) EditMember(id int) (err e.SelfError) {
 
 	return
 }
-
 
 func (m *Member) ListMembers() (members []models.Member, err e.SelfError) {
 	fields := "member.id,member.name,member.status,member.sex,member.id_card," +

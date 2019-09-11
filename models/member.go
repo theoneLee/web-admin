@@ -8,30 +8,31 @@ import (
 
 type Member struct {
 	Model
-	RelationId       int     `json:",omitempty"` //上级ID
-	RelationName     string  `gorm:"-"`          //上级名称
-	Name             string  `json:",omitempty"` //姓名
-	Sex              int     //性别
-	SexDesc          string  `gorm:"-"`
-	IdCard           string  //身份证
-	Birth            string  //生日
-	Age              int     `gorm:"-"` //年龄
-	Phone            string  //手机号
-	SparePhone       string  //备用电话
-	Email            string  //EMAIL
-	BankCard         string  //账户
-	Bank             string  //银行ß
-	LevelId          int     //等级ID
-	LevelName        string  `gorm:"-"`
-	Status           int     //状态
-	StatusDesc       string  `gorm:"-"` //状态对应的文案
-	AvailableIncome  float64 //可提取佣金
-	ExtractIncome    float64 //已提取佣金
+	RelationId       int    `json:",omitempty"` //上级ID
+	RelationName     string `gorm:"-"`          //上级名称
+	Name             string `json:",omitempty"` //姓名
+	Sex              int                        //性别
+	SexDesc          string `gorm:"-"`
+	IdCard           string         //身份证
+	Birth            string         //生日
+	Age              int `gorm:"-"` //年龄
+	Phone            string         //手机号
+	SparePhone       string         //备用电话
+	Email            string         //EMAIL
+	BankCard         string         //账户
+	Bank             string         //银行ß
+	LevelId          int            //等级ID
+	LevelName        string `gorm:"-"`
+	Status           int                //状态
+	StatusDesc       string `gorm:"-"`  //状态对应的文案
+	AvailableIncome  float64            //可提取佣金
+	ExtractIncome    float64            //已提取佣金
 	TotalOrderIncome float64 `gorm:"-"` //订单总额
 	TotalOrderNumber int     `gorm:"-"` //订单数量
-	ExpiredTime      int     //到期时间
+	ExpiredTime      int                //到期时间
 	Username         string
 	Password         string
+	Remark           string
 	IsOperate        int
 	OperateAddress   string
 	Integral         int
@@ -55,6 +56,7 @@ func AddMember(data map[string]interface{}) (flag bool) {
 		Password:       data["password"].(string),
 		OperateAddress: data["operate_address"].(string),
 		IsOperate:      data["is_operate"].(int),
+		Remark:         data["remark"].(string),
 	}).Error
 
 	if err != nil { //添加会员失败
@@ -83,6 +85,7 @@ func EditMember(data map[string]interface{}, id int) (flag bool) {
 		Password:       data["password"].(string),
 		OperateAddress: data["operate_address"].(string),
 		IsOperate:      data["is_operate"].(int),
+		Remark:         data["remark"].(string),
 	}
 
 	//判断密码需要更新的情况，去更新数据库密码

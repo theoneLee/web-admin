@@ -30,9 +30,9 @@ func AddGoodsImg(data map[string]interface{}, tx *gorm.DB) (flag bool) {
 //删除订单对应的图片
 func DeleteGoodsImg(id int, tx *gorm.DB) (flag bool) {
 	var goodsImg GoodsImg
-	err := tx.Debug().Where("goods_id = ?", id).Delete(goodsImg).Error
+	err := tx.Where("goods_id = ?", id).Delete(goodsImg).Error
 	if err != nil {
 		flag = true
 	}
-	return flag
+	return
 }

@@ -18,4 +18,3 @@ func Logout(token string, id int) (err e.SelfError) {
 
 	return
 }
-

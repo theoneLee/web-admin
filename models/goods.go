@@ -7,23 +7,29 @@ import (
 
 type Goods struct {
 	Model
-	Name       string
-	Price      float64
-	Remark     string
-	Stock      int
-	Status     int
-	StatusDesc string   `gorm:"-"`
-	Images     []string `gorm:"-"`
-	Img        string   `gorm:"-"`
+	Name          string
+	Stock         int
+	Price         float64
+	Integral      int
+	Specification string
+	Remark        string
+	Status        int
+	Description   string
+	StatusDesc    string   `gorm:"-"`
+	Images        []string `gorm:"-"`
+	Img           string   `gorm:"-"`
 }
 
 func AddGoods(data map[string]interface{}, tx *gorm.DB) (id int, flag bool) {
 	goods := &Goods{
-		Name:   data["name"].(string),
-		Price:  data["price"].(float64),
-		Remark: data["remark"].(string),
-		Stock:  data["stock"].(int),
-		Status: data["status"].(int),
+		Name:          data["name"].(string),
+		Stock:         data["stock"].(int),
+		Price:         data["price"].(float64),
+		Integral:      data["integral"].(int),
+		Specification: data["specification"].(string),
+		Remark:        data["remark"].(string),
+		Status:        data["status"].(int),
+		Description:   data["description"].(string),
 	}
 	err := tx.Create(goods).Error
 
@@ -92,4 +98,26 @@ func DeleteGoods(id int, tx *gorm.DB) (flag bool) {
 		flag = true
 	}
 	return flag
+}
+
+func EditGoods(data map[string]interface{}, tx *gorm.DB, id int) (flag bool) {
+	goods := &Goods{
+		Name:          data["name"].(string),
+		Stock:         data["stock"].(int),
+		Price:         data["price"].(float64),
+		Integral:      data["integral"].(int),
+		Specification: data["specification"].(string),
+		Remark:        data["remark"].(string),
+		Status:        data["status"].(int),
+		Description:   data["description"].(string),
+	}
+	err := tx.Table("goods").Where("id = ? ", id).Update(goods).Error
+
+	if err != nil { //添加商品失败
+		flag = true
+		logging.Info("编辑商品错误", err) //记录错误日志
+		return
+	}
+
+	return
 }

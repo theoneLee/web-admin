@@ -39,13 +39,14 @@ func InitRouter() *gin.Engine {
 		apiAdmin.GET("/member", admin.ListMembers)
 		apiAdmin.POST("/member/statusChange", admin.MemberStatusChange)
 		apiAdmin.PUT("/member/:id", admin.EditMember)
-		//apiAdmin.GET("/member/:id", admin.DetailMember)
 
 		//商品
 		apiAdmin.POST("/goods", admin.AddGoods)
+		apiAdmin.POST("/upload/image", admin.UploadGoodsImage)
 		apiAdmin.GET("/goods", admin.ListGoods)
 		apiAdmin.GET("/goods/:id", admin.DetailGoods)
 		apiAdmin.DELETE("/goods/:id", admin.DeleteGoods)
+		apiAdmin.PUT("/goods/:id", admin.EditGoods)
 
 	}
 
