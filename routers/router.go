@@ -40,6 +40,9 @@ func InitRouter() *gin.Engine {
 		apiAdmin.POST("/member/statusChange", admin.MemberStatusChange)
 		apiAdmin.PUT("/member/:id", admin.EditMember)
 
+		//等级
+		apiAdmin.GET("/level", admin.ListLevels)
+
 		//商品
 		apiAdmin.POST("/goods", admin.AddGoods)
 		apiAdmin.POST("/upload/image", admin.UploadGoodsImage)
@@ -47,6 +50,10 @@ func InitRouter() *gin.Engine {
 		apiAdmin.GET("/goods/:id", admin.DetailGoods)
 		apiAdmin.DELETE("/goods/:id", admin.DeleteGoods)
 		apiAdmin.PUT("/goods/:id", admin.EditGoods)
+
+		//订单
+		//apiAdmin.GET("/orders", admin.ListOrders)
+
 
 	}
 

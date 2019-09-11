@@ -8,7 +8,6 @@ import (
 	"gitee.com/muzipp/Distribution/pkg/logging"
 	"gitee.com/muzipp/Distribution/pkg/setting"
 	"gitee.com/muzipp/Distribution/pkg/util"
-	"gitee.com/muzipp/Distribution/routers/common"
 	"gitee.com/muzipp/Distribution/service/admin/member"
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
@@ -21,8 +20,9 @@ import (
 func AddMember(c *gin.Context) {
 	appG := app.Gin{C: c} //实例化响应对象
 	sex := com.StrTo(c.DefaultPostForm("sex", "0")).MustInt()
-	levelId := com.StrTo(c.DefaultPostForm("level_id", "1")).MustInt()
+	levelId := com.StrTo(c.DefaultPostForm("level_id", "0")).MustInt()
 	name := c.DefaultPostForm("name", "")
+	relationName := c.DefaultPostForm("relation_name", "")
 	idCard := c.DefaultPostForm("id_card", "")
 	birth := c.DefaultPostForm("birth", "")
 	phone := c.DefaultPostForm("phone", "")
@@ -37,18 +37,11 @@ func AddMember(c *gin.Context) {
 	remark := c.DefaultPostForm("remark", "")
 
 	valid := validation.Validation{}
-	valid.Required(sex, "sex").Message("性别不能为空")
 	valid.Required(name, "name").Message("姓名不能为空")
-	valid.Required(idCard, "id_card").Message("身份证不能为空")
-	valid.Required(birth, "birth").Message("生日不能为空")
-	valid.Required(phone, "phone").Message("电话地址不能为空")
-	valid.Required(sparePhone, "spare_phone").Message("备用电话不能为空")
-	valid.Required(email, "email").Message("邮箱不能为空")
-	valid.Required(bankCard, "bank_card").Message("银行卡号不能为空")
-	valid.Required(bank, "bank").Message("开户行不能为空")
 	valid.Required(password, "password").Message("密码不能为空")
 	valid.Required(username, "username").Message("用户名不能为空")
-	valid.Required(remark, "remark").Message("备注不能为空")
+	valid.Required(levelId, "level_id").Message("等级不能为空")
+	valid.Required(relationName, "relation_name").Message("上级代理不能为空")
 
 	//设置返回数据
 	data := make(map[string]interface{})
@@ -59,6 +52,12 @@ func AddMember(c *gin.Context) {
 		//校验用户名是否重复
 		user := models.CheckAuth(username, 0)
 		if user.ID > 0 {
+			code = e.ERROR_USERNAME
+			goto End
+		}
+
+		relationUser := models.CheckAuth(relationName, 0)
+		if relationUser.ID == 0 {
 			code = e.ERROR_USERNAME
 			goto End
 		}
@@ -75,7 +74,7 @@ func AddMember(c *gin.Context) {
 			BankCard:       bankCard,
 			Bank:           bank,
 			Status:         1,
-			RelationId:     common.SelfUser.Id,
+			RelationId:     relationUser.ID,
 			Username:       username,
 			PassWord:       util.EncodeMD5(password),
 			IsOperate:      isOperate,
@@ -173,17 +172,10 @@ func EditMember(c *gin.Context) {
 	remark := c.DefaultPostForm("remark", "")
 
 	valid := validation.Validation{}
-	valid.Required(sex, "sex").Message("性别不能为空")
 	valid.Required(id, "id").Message("会员ID不能为空")
 	valid.Required(name, "name").Message("姓名不能为空")
-	valid.Required(idCard, "id_card").Message("身份证不能为空")
-	valid.Required(birth, "birth").Message("生日不能为空")
-	valid.Required(phone, "phone").Message("电话地址不能为空")
-	valid.Required(sparePhone, "spare_phone").Message("备用电话不能为空")
-	valid.Required(email, "email").Message("邮箱不能为空")
-	valid.Required(bankCard, "bank_card").Message("银行卡号不能为空")
-	valid.Required(bank, "bank").Message("开户行不能为空")
-	valid.Required(remark, "remark").Message("备注不能为空")
+	valid.Required(password, "password").Message("密码不能为空")
+	valid.Required(levelId, "level_id").Message("等级不能为空")
 
 	//设置返回数据
 	data := make(map[string]interface{})
@@ -210,7 +202,7 @@ func EditMember(c *gin.Context) {
 			BankCard:       bankCard,
 			Bank:           bank,
 			Status:         1,
-			RelationId:     common.SelfUser.Id,
+			RelationId:     user.RelationId,
 			PassWord:       password,
 			IsOperate:      isOperate,
 			OperateAddress: operateAddress,
@@ -234,9 +226,3 @@ End:
 
 }
 
-//
-////会员详情
-//func DetailMember(c *gin.Context) {
-//	appG := app.Gin{C: c} //实例化响应对象
-//
-//}
