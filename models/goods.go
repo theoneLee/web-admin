@@ -47,8 +47,8 @@ func ListGoods(pageNum int, pageSize int, maps interface{}, fields string) (good
 	err := Db.Table("goods").
 		Where(maps).
 		Joins("left join `goods_img` as gi on gi.goods_id = goods.id").
-		Offset(pageNum).
-		Limit(pageSize).
+		//Offset(pageNum).
+		//Limit(pageSize).
 		Select(fields).
 		Scan(&goods).Error
 	if err != nil {

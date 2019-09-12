@@ -10,6 +10,7 @@ type Member struct {
 	Model
 	RelationId       int    //上级ID
 	RelationName     string `gorm:"-"`          //上级名称
+	RelationUserName     string `gorm:"-"`          //上级名称
 	Name             string  //姓名
 	Sex              int                        //性别
 	SexDesc          string `gorm:"-"`
@@ -88,6 +89,7 @@ func EditMember(data map[string]interface{}, id int) (flag bool) {
 		Remark:         data["remark"].(string),
 	}
 
+
 	//判断密码需要更新的情况，去更新数据库密码
 	if data["password"].(string) != "" {
 		member.Password = util.EncodeMD5(data["password"].(string))
@@ -111,8 +113,8 @@ func ListMembers(pageNum int, pageSize int, maps interface{}, fields string) (me
 		Joins("left join `level` as l on l.id = member.level_id").
 		Joins("left join `member` as m1 on m1.id = member.relation_id").
 		Joins("left join `order` as o on o.member_id = member.id").
-		Offset(pageNum).
-		Limit(pageSize).
+		//Offset(pageNum).
+		//Limit(pageSize).
 		Select(fields).
 		Group("member.id").
 		Scan(&members).Error

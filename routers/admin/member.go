@@ -206,7 +206,6 @@ func EditMember(c *gin.Context) {
 	valid := validation.Validation{}
 	valid.Required(id, "id").Message("会员ID不能为空")
 	valid.Required(name, "name").Message("姓名不能为空")
-	valid.Required(password, "password").Message("密码不能为空")
 	valid.Required(levelId, "level_id").Message("等级不能为空")
 
 	//设置返回数据

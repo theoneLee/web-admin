@@ -87,20 +87,23 @@ func (m *Member) EditMember(id int) (err e.SelfError) {
 }
 
 func (m *Member) ListMembers() (members []models.Member, err e.SelfError) {
-	fields := "member.id,member.name,member.status,member.sex,member.id_card," +
+	fields := "member.id,member.name,member.status,member.sex,member.id_card,member.username," +
 		"member.birth,member.phone,member.spare_phone,member.email,member.bank," +
 		"member.bank_card,member.available_income,member.extract_income," +
-		"l.name as level_name,m1.name as relation_name," +
+		"l.name as level_name,m1.name as relation_name,m1.username as relation_user_name," +
 		"count(o.id) as total_order_number,sum(o.reference_price) as total_order_income,member.integral"
 	members, memberErr := models.ListMembers(m.Offset, m.Limit, m.getMaps(), fields)
 	if memberErr {
 		err.Code = e.ERROR_SQL_FAIL
 	}
-
 	for key, value := range members {
 		members[key].StatusDesc = member.GetStatus(value.Status)
 		members[key].SexDesc = member.GetSex(value.Sex)
-		members[key].Age = member.GetAge(member.GetTimeFromStrDate(value.Birth))
+		if value.Birth=="" {
+			members[key].Age = 0
+		} else  {
+			members[key].Age = member.GetAge(member.GetTimeFromStrDate(value.Birth))
+		}
 	}
 
 	return

@@ -1,6 +1,7 @@
 package order
 
 import (
+	"fmt"
 	"gitee.com/muzipp/Distribution/models"
 	"gitee.com/muzipp/Distribution/pkg/e"
 	"gitee.com/muzipp/Distribution/pkg/order"
@@ -76,6 +77,45 @@ func (o *Order) DetailOrder() (rst map[string]interface{}, err e.SelfError) {
 	}
 	rst["orderInfo"] = orderDetail
 	rst["goodsInfo"] = orderDetailGoods
+
+	return
+}
+
+//添加会员代码
+func (o *Order) StatusChange() (err e.SelfError) {
+	data := make(map[string]interface{})
+	data["status"] = o.Status
+	maps := o.getMaps()
+	maps["id"] = o.Id
+
+	selectOrder, selectErr := models.DetailOrder(o.Id, "id,status") //获取订单详情
+	fmt.Println(selectOrder)
+
+	if selectErr || selectOrder == nil {
+		err.Code = e.ERROR_SQL_FAIL
+		return
+	}
+
+	if selectOrder.Status == 1 && o.Status == -3 {
+		err.Code = e.ERROR_SQL_FAIL
+		return
+	}
+
+	if selectOrder.Status == -3 && o.Status == 1 {
+		err.Code = e.ERROR_SQL_FAIL
+		return
+	}
+
+	if selectOrder.Status == o.Status {
+		err.Code = e.ERROR_SQL_FAIL
+		return
+	}
+
+	res := models.OrderStatusChange(maps, data)
+
+	if res { //会员状态变化失败
+		err.Code = e.ERROR_SQL_FAIL
+	}
 
 	return
 }

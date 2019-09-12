@@ -1,14 +1,18 @@
 package admin
 
 import (
+	"fmt"
 	"gitee.com/muzipp/Distribution/pkg/app"
 	"gitee.com/muzipp/Distribution/pkg/e"
+	"gitee.com/muzipp/Distribution/pkg/logging"
 	"gitee.com/muzipp/Distribution/pkg/setting"
 	"gitee.com/muzipp/Distribution/pkg/util"
+	"gitee.com/muzipp/Distribution/service/admin/goods"
 	"gitee.com/muzipp/Distribution/service/admin/order"
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
 	"github.com/unknwon/com"
+	"log"
 	"net/http"
 )
 
@@ -51,7 +55,6 @@ func ListOrders(c *gin.Context) {
 	appG.Response(http.StatusOK, code, data)
 }
 
-
 //订单详情
 func DetailOrder(c *gin.Context) {
 	appG := app.Gin{C: c} //实例化响应对象
@@ -81,5 +84,95 @@ func DetailOrder(c *gin.Context) {
 	}
 
 	appG.Response(http.StatusOK, code, data)
+
+}
+
+func AddOrder(c *gin.Context) {
+	appG := app.Gin{C: c} //实例化响应对象
+	name := c.DefaultPostForm("name", "")
+	stock := com.StrTo(c.DefaultPostForm("stock", "1")).MustInt()
+	status := com.StrTo(c.DefaultPostForm("status", "1")).MustInt()
+	integral := com.StrTo(c.DefaultPostForm("integral", "0")).MustInt() //积分
+	specification := c.DefaultPostForm("specification", "")             //规格
+	price := com.StrTo(c.DefaultPostForm("price", "1")).MustFloat64()
+	remark := c.DefaultPostForm("remark", "")
+	description := c.DefaultPostForm("description", "") //描述
+	image := c.DefaultPostForm("image", "")             //图片地址
+
+	valid := validation.Validation{}
+	valid.Required(stock, "stock").Message("库存不能为空")
+	valid.Required(name, "name").Message("名称不能为空")
+	valid.Required(price, "price").Message("单价不能为空")
+	valid.Required(specification, "specification").Message("规格不能为空")
+	valid.Required(image, "image").Message("图片不能为空")
+
+	//设置返回数据
+	data := make(map[string]interface{})
+
+	code := e.INVALID_PARAMS
+	if !valid.HasErrors() {
+		//图片上传
+		goodsService := goods.Goods{
+			Name:          name,
+			Stock:         stock,
+			Remark:        remark,
+			Price:         price,
+			Status:        status,
+			Specification: specification,
+			Integral:      integral,
+			Description:   description,
+			Image:         image,
+		}
+		err := goodsService.AddGoods()
+
+		if err.Code == 0 {
+			code = e.SUCCESS
+		} else {
+			code = err.Code
+		}
+
+	} else {
+		for _, err := range valid.Errors {
+			logging.Info(fmt.Sprintf("%s,%s", "err key is "+err.Key, "err Message is "+err.Message))
+		}
+	}
+
+	appG.Response(http.StatusOK, code, data)
+}
+
+//会员列表
+func OrderStatusChange(c *gin.Context) {
+	appG := app.Gin{C: c} //实例化响应对象
+	id := com.StrTo(c.PostForm("id")).MustInt()
+	status := com.StrTo(c.PostForm("status")).MustInt()
+
+	valid := validation.Validation{}
+	valid.Required(id, "id").Message("ID不能为空")
+	valid.Range(status, -3, 1, "status").Message("状态只允许-3或-1")
+
+	code := e.INVALID_PARAMS
+	if status != 1 && status != -3 {
+		goto End
+	}
+	if !valid.HasErrors() {
+		orderService := order.Order{
+			Id:     id,
+			Status: status,
+		}
+		code = e.ERROR_SQL_FAIL
+		err := orderService.StatusChange()
+		if err.Code == 0 {
+			code = e.SUCCESS
+		} else {
+			code = err.Code
+		}
+	} else {
+		for _, err := range valid.Errors {
+			log.Printf("err.key: %s, err.message: %s", err.Key, err.Message)
+		}
+	}
+
+End:
+	appG.Response(http.StatusOK, code, nil)
 
 }

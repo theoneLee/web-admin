@@ -56,8 +56,8 @@ func ListOrders(pageNum int, pageSize int, maps interface{}, fields string, rema
 	query = query.
 		Joins("left join `member` as m on m.id = order.member_id").
 		Joins("left join `member` as m1 on m1.id = m.relation_id").
-		Offset(pageNum).
-		Limit(pageSize).
+		//Offset(pageNum).
+		//Limit(pageSize).
 		Select(fields)
 
 	if orderField == "" { //没有自定义排序的情况，默认id倒叙
@@ -144,5 +144,17 @@ func DetailOrderGoods(orderId int, fields string) (orderGoods []OrderGoodsDetail
 		flag = true
 		return nil, flag
 	}
+	return
+}
+
+func OrderStatusChange(maps interface{}, data map[string]interface{}) (flag bool) {
+	err := Db.Debug().Model(Order{}).Where(maps).Update(data).Error
+
+	if err != nil { //会员状态变化
+		flag = true
+		logging.Info("状态变化失败", err) //记录错误日志
+		return
+	}
+
 	return
 }
