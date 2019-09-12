@@ -55,6 +55,7 @@ func (o *Order) CountOrders() (count int, err e.SelfError) {
 
 //获取文章（redis不存在读取数据库）
 func (o *Order) DetailOrder() (rst map[string]interface{}, err e.SelfError) {
+	rst = make(map[string]interface{}, 10)
 	fields := "id,number,create_at,review_time,remark"
 	orderDetail, orderErr := models.DetailOrder(o.Id, fields)
 	if orderErr {
