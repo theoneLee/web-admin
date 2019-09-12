@@ -10,9 +10,9 @@ type Order struct {
 	Model
 	Number         string
 	MemberId       int
-	MemberName     string
-	StatusDesc     string
-	TeamName       string
+	MemberName     string `gorm:"-"`
+	StatusDesc     string `gorm:"-"`
+	TeamName       string	`gorm:"-"`
 	ReferencePrice float64
 	ActualPrice    float64
 	Discount       float64
@@ -23,15 +23,17 @@ type Order struct {
 	ShipTime       int
 	ReviewTime     int
 	Integral       int
-	CreateTimeDesc string
-	ReviewTimeDesc string
+	CreateTimeDesc string	`gorm:"-"`
+	ReviewTimeDesc string	`gorm:"-"`
+	RecommendId    int
+	BillNumber     string
 }
 
 type OrderGoodsDetail struct {
 	GoodsName     string
-	Number   int
-	MemberPrice    float64
-	TotalPrice        float64
+	Number        int
+	MemberPrice   float64
+	TotalPrice    float64
 	Remark        string
 	Specification string
 }
@@ -153,6 +155,38 @@ func OrderStatusChange(maps interface{}, data map[string]interface{}) (flag bool
 	if err != nil { //会员状态变化
 		flag = true
 		logging.Info("状态变化失败", err) //记录错误日志
+		return
+	}
+
+	return
+}
+
+func AddOrder(data map[string]interface{}, tx *gorm.DB) (id int, flag bool) {
+	order := &Order{
+		RecommendId: data["recommend_id"].(int),
+		MemberId:    data["member_id"].(int),
+		Remark:      data["remark"].(string),
+		BillNumber:  data["bill_number"].(string),
+		Status:      data["status"].(int),
+	}
+	err := tx.Create(order).Error
+
+	if err != nil { //添加商品失败
+		flag = true
+		logging.Info("添加订单错误", err) //记录错误日志
+		return
+	}
+
+	return order.ID, false
+}
+
+
+func UpdateOrder(maps interface{}, data map[string]interface{}, tx *gorm.DB) (flag bool) {
+	err := tx.Debug().Model(Order{}).Where(maps).Update(data).Error
+
+	if err != nil { //会员状态变化
+		flag = true
+		logging.Info("更新订单失败", err) //记录错误日志
 		return
 	}
 

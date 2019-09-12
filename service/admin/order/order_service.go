@@ -1,6 +1,7 @@
 package order
 
 import (
+	"encoding/json"
 	"fmt"
 	"gitee.com/muzipp/Distribution/models"
 	"gitee.com/muzipp/Distribution/pkg/e"
@@ -9,17 +10,26 @@ import (
 )
 
 type Order struct {
-	Id         int
-	MemberId   int
-	Status     int
-	Number     string
-	Remark     string
-	StartTime  string
-	EndTime    string
-	OrderField string
-	OrderSort  int
-	Offset     int
-	Limit      int
+	Id            int
+	MemberId      int
+	Status        int
+	Number        string
+	Remark        string
+	StartTime     string
+	EndTime       string
+	OrderField    string
+	OrderSort     int
+	Offset        int
+	Limit         int
+	RecommendName string
+	MemberName    string
+	BillNumber    string
+	GoodsInfo     string
+}
+
+type GoodsInfo struct {
+	Id     int
+	Number int
 }
 
 //订单列表
@@ -117,6 +127,103 @@ func (o *Order) StatusChange() (err e.SelfError) {
 		err.Code = e.ERROR_SQL_FAIL
 	}
 
+	return
+}
+
+func (o *Order) AddOrder() (err e.SelfError) {
+	data := make(map[string]interface{})
+	goodsInfo := o.GoodsInfo
+	remark := o.Remark
+	recommend := models.CheckAuth(o.RecommendName, 0)
+	if recommend.ID == 0 {
+		err.Code = e.ERROR_USER
+		return
+	}
+	member := models.CheckAuth(o.MemberName, 0)
+	if member.ID == 0 {
+		err.Code = e.ERROR_USER
+		return
+	}
+	recommendId := recommend.ID
+	memberId := member.ID
+	billNumber := o.BillNumber
+
+	var totalPrice float64
+	var sumPrice float64
+	var totalIntegral int
+
+	//开启事务
+	tx := models.Db.Begin()
+
+	data["recommend_id"] = recommendId
+	data["member_id"] = memberId
+	data["remark"] = remark
+	data["bill_number"] = billNumber
+	data["status"] = -1
+
+	orderId, orderAddFlag := models.AddOrder(data, tx)
+	if orderAddFlag { //json解析错误
+		err.Code = e.ERROR_SQL_FAIL
+		tx.Rollback()
+		return
+	}
+
+	//获取商品信息
+	goodsInfoFormat := make([]GoodsInfo, 5)
+	jsonErr := json.Unmarshal([]byte(goodsInfo), &goodsInfoFormat)
+	if jsonErr != nil { //json解析错误
+		err.Code = e.ERROR_SQL_FAIL
+		return
+	}
+
+	//遍历处理商品信息
+	for _, value := range goodsInfoFormat {
+		goodsData := make(map[string]interface{})
+
+		goods, _ := models.DetailGoods(value.Id, "*")
+		sumPrice = sumPrice + float64(value.Number)*goods.MemberPrice
+		totalPrice = totalPrice + float64(value.Number)*goods.Price
+		totalIntegral = totalIntegral + value.Number*goods.Integral
+
+		goodsData["order_id"] = orderId
+		goodsData["goods_id"] = goods.ID
+		goodsData["goods_name"] = goods.Name
+		goodsData["goods_img"] = goods.Img
+		goodsData["member_price"] = goods.MemberPrice
+		goodsData["price"] = goods.Price
+		goodsData["number"] = value.Number
+		goodsData["total_price"] = goods.Price
+		goodsData["sum_price"] = goods.MemberPrice
+		goodsData["specification"] = goods.Specification
+		goodsData["remark"] = goods.Remark
+		OrderAddGoodsFlag := models.AddOrderGoods(goodsData, tx)
+
+		if OrderAddGoodsFlag {
+			err.Code = e.ERROR_SQL_FAIL
+			tx.Rollback()
+			return
+		}
+
+	}
+
+	//更新订单表的数据
+	updateOrderData := make(map[string]interface{})
+	updateOrderData["reference_price"] = sumPrice
+	updateOrderData["actual_price"] = totalPrice
+	updateOrderData["discount"] = totalPrice - sumPrice
+	updateOrderData["integral"] = totalIntegral
+
+	maps := make(map[string]interface{})
+	maps["delete_at"] = 0
+	maps["id"] = orderId
+	updateFlag := models.UpdateOrder(maps, updateOrderData, tx)
+	if updateFlag {
+		err.Code = e.ERROR_SQL_FAIL
+		tx.Rollback()
+		return
+	}
+
+	tx.Commit() //事务提交
 	return
 }
 

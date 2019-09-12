@@ -7,7 +7,6 @@ import (
 	"gitee.com/muzipp/Distribution/pkg/logging"
 	"gitee.com/muzipp/Distribution/pkg/setting"
 	"gitee.com/muzipp/Distribution/pkg/util"
-	"gitee.com/muzipp/Distribution/service/admin/goods"
 	"gitee.com/muzipp/Distribution/service/admin/order"
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
@@ -88,23 +87,19 @@ func DetailOrder(c *gin.Context) {
 }
 
 func AddOrder(c *gin.Context) {
-	appG := app.Gin{C: c} //实例化响应对象
-	name := c.DefaultPostForm("name", "")
-	stock := com.StrTo(c.DefaultPostForm("stock", "1")).MustInt()
-	status := com.StrTo(c.DefaultPostForm("status", "1")).MustInt()
-	integral := com.StrTo(c.DefaultPostForm("integral", "0")).MustInt() //积分
-	specification := c.DefaultPostForm("specification", "")             //规格
-	price := com.StrTo(c.DefaultPostForm("price", "1")).MustFloat64()
-	remark := c.DefaultPostForm("remark", "")
-	description := c.DefaultPostForm("description", "") //描述
-	image := c.DefaultPostForm("image", "")             //图片地址
+	appG := app.Gin{C: c}                                     //实例化响应对象
+	recommendName := c.DefaultPostForm("recommend_name", "0") //下单人ID
+	memberName := c.DefaultPostForm("member_name", "0")       //订单所属人ID
+	remark := c.DefaultPostForm("remark", "")                 //备注
+	billNumber := c.DefaultPostForm("bill_number", "")        //银行流水号
+	goodsInfo := c.DefaultPostForm("goods_info", "")          //下单的商品信息
 
 	valid := validation.Validation{}
-	valid.Required(stock, "stock").Message("库存不能为空")
-	valid.Required(name, "name").Message("名称不能为空")
-	valid.Required(price, "price").Message("单价不能为空")
-	valid.Required(specification, "specification").Message("规格不能为空")
-	valid.Required(image, "image").Message("图片不能为空")
+	valid.Required(recommendName, "recommend_name").Message("下单人不能为空")
+	valid.Required(memberName, "member_name").Message("订单所属人不能为空")
+	valid.Required(remark, "remark").Message("备注不能为空")
+	valid.Required(billNumber, "bill_number").Message("银行流水号不能为空")
+	valid.Required(goodsInfo, "goods_info").Message("商品信息不能为空")
 
 	//设置返回数据
 	data := make(map[string]interface{})
@@ -112,18 +107,14 @@ func AddOrder(c *gin.Context) {
 	code := e.INVALID_PARAMS
 	if !valid.HasErrors() {
 		//图片上传
-		goodsService := goods.Goods{
-			Name:          name,
-			Stock:         stock,
+		orderService := order.Order{
 			Remark:        remark,
-			Price:         price,
-			Status:        status,
-			Specification: specification,
-			Integral:      integral,
-			Description:   description,
-			Image:         image,
+			MemberName:    memberName,
+			RecommendName: recommendName,
+			BillNumber:    billNumber,
+			GoodsInfo:     goodsInfo,
 		}
-		err := goodsService.AddGoods()
+		err := orderService.AddOrder()
 
 		if err.Code == 0 {
 			code = e.SUCCESS

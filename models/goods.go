@@ -10,6 +10,7 @@ type Goods struct {
 	Name          string
 	Stock         int
 	Price         float64
+	MemberPrice   float64
 	Integral      int
 	Specification string
 	Remark        string

@@ -113,9 +113,9 @@ func (m *Member) ListMembers() (members []models.Member, err e.SelfError) {
 
 //获取文章（redis不存在读取数据库）
 func (m *Member) DetailMember() (goods *models.Member, err e.SelfError) {
-	fields := "id,relation_id,sex,name,sex,username,id_card,birth," +
-		"phone,spare_phone,email,bank_card,bank,status,level_id," +
-		"remark,is_operate,operate_address"
+	fields := "member.id,member.relation_id,member.sex,member.name,member.username,member.id_card,member.birth," +
+		"member.phone,member.spare_phone,member.email,member.bank_card,member.bank,member.status,member.level_id," +
+		"member.remark,member.is_operate,member.operate_address,m1.name as relation_name,m1.username as relation_user_name"
 	goods, goodsErr := models.DetailMember(m.Id, fields)
 	if goodsErr {
 		err.Code = e.ERROR_SQL_FAIL

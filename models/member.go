@@ -132,7 +132,8 @@ func DetailMember(id int, fields string) (*Member, bool) {
 	var member Member
 	var flag bool
 	err := Db.Table("member").
-		Where("id = ? AND delete_at = ? ", id, 0).
+		Joins("left join `member` as m1 on m1.id = member.relation_id").
+		Where("member.id = ? AND member.delete_at = ? ", id, 0).
 		Select(fields).
 		Find(&member).Error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
