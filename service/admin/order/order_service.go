@@ -160,6 +160,7 @@ func (o *Order) AddOrder() (err e.SelfError) {
 	data["remark"] = remark
 	data["bill_number"] = billNumber
 	data["status"] = -1
+	data["number"] = order.GenerateNumber()
 
 	orderId, orderAddFlag := models.AddOrder(data, tx)
 	if orderAddFlag { //json解析错误

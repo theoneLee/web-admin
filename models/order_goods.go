@@ -34,7 +34,7 @@ func AddOrderGoods(data map[string]interface{}, tx *gorm.DB) (flag bool) {
 		Remark:        data["remark"].(string),
 		Specification: data["specification"].(string),
 	}
-	err := tx.Debug().Create(orderGoods).Error
+	err := tx.Create(orderGoods).Error
 
 	if err != nil { //添加商品失败
 		flag = true

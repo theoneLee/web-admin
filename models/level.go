@@ -9,7 +9,7 @@ type Level struct {
 
 func ListLevels(maps interface{}, fields string) (levels []Level, flag bool) {
 
-	err := Db.Debug().Table("level").
+	err := Db.Table("level").
 		Where(maps).
 		Select(fields).
 		Scan(&levels).Error

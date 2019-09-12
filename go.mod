@@ -11,5 +11,6 @@ require (
 	github.com/go-ini/ini v1.46.0
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/jinzhu/gorm v1.9.10
+	github.com/satori/go.uuid v1.2.0
 	github.com/unknwon/com v1.0.1
 )

@@ -150,7 +150,7 @@ func DetailMember(id int, fields string) (*Member, bool) {
 }
 
 func StatusChange(maps interface{}, data map[string]interface{}) (flag bool) {
-	err := Db.Debug().Model(Member{}).Where(maps).Update(data).Error
+	err := Db.Model(Member{}).Where(maps).Update(data).Error
 
 	if err != nil { //会员状态变化
 		flag = true
