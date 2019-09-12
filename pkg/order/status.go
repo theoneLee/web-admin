@@ -1,0 +1,8 @@
+package order
+
+const (
+	ORDER_STATUS_EXPRIRED   = -3
+	ORDER_STATUS_DELETE     = -2
+	ORDER_STATUS_DISABLE    = -1
+	ORDER_STATUS_NORMAL     = 1
+)

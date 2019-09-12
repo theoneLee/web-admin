@@ -121,6 +121,7 @@ func ListMembers(pageNum int, pageSize int, maps interface{}, fields string) (me
 		logging.Info("会员列表错误", err) //记录错误日志
 		return
 	}
+
 	return
 }
 

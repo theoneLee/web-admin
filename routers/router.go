@@ -53,7 +53,7 @@ func InitRouter() *gin.Engine {
 		apiAdmin.PUT("/goods/:id", admin.EditGoods)
 
 		//订单
-		//apiAdmin.GET("/orders", admin.ListOrders)
+		apiAdmin.GET("/orders", admin.ListOrders)
 
 
 	}

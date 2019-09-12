@@ -19,7 +19,7 @@ var Db *gorm.DB
 */
 type Model struct {
 	ID       int `gorm:"primary_key" `
-	CreateAt int `json:"omitempty"`
+	CreateAt int
 	UpdateAt int `json:"omitempty"`
 	DeleteAt int `json:"omitempty"`
 }
