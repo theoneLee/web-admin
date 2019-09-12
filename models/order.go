@@ -3,6 +3,7 @@ package models
 import (
 	"gitee.com/muzipp/Distribution/pkg/common"
 	"gitee.com/muzipp/Distribution/pkg/logging"
+	"github.com/jinzhu/gorm"
 )
 
 type Order struct {
@@ -22,7 +23,17 @@ type Order struct {
 	ShipTime       int
 	ReviewTime     int
 	Integral       int
-	CreateTime     string
+	CreateTimeDesc string
+	ReviewTimeDesc string
+}
+
+type OrderGoodsDetail struct {
+	GoodsName     string
+	Number   int
+	MemberPrice    float64
+	TotalPrice        float64
+	Remark        string
+	Specification string
 }
 
 func ListOrders(pageNum int, pageSize int, maps interface{}, fields string, remark string, startTime string, endTime string, orderField string, orderSort int) (orders []Order, flag bool) {
@@ -92,6 +103,46 @@ func CountOrders(maps interface{}, remark string, startTime string, endTime stri
 		flag = true
 		logging.Info("订单量错误", err) //记录错误日志
 		return
+	}
+	return
+}
+
+//商品详情
+func DetailOrder(id int, fields string) (*Order, bool) {
+	var order Order
+	var flag bool
+	err := Db.Table("order").
+		Where("id = ? AND delete_at = ? ", id, 0).
+		Select(fields).
+		Find(&order).Error
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
+		flag = true
+		logging.Info("订单详情错误", err) //记录错误日志
+		return &order, flag
+	}
+
+	if gorm.IsRecordNotFoundError(err) { //查询结果不存在的情况
+		flag = true
+		return nil, flag
+	}
+	return &order, flag
+}
+
+func DetailOrderGoods(orderId int, fields string) (orderGoods []OrderGoodsDetail, goodsFlag bool) {
+	var flag bool
+	err := Db.Table("order_goods").
+		Where("order_goods.order_id = ? AND order_goods.delete_at = ? ", orderId, 0).
+		Select(fields).
+		Find(&orderGoods).Error
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
+		flag = true
+		logging.Info("订单商品详情错误", err) //记录错误日志
+		return
+	}
+
+	if gorm.IsRecordNotFoundError(err) { //查询结果不存在的情况
+		flag = true
+		return nil, flag
 	}
 	return
 }

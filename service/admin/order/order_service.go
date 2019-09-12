@@ -8,7 +8,7 @@ import (
 )
 
 type Order struct {
-	models.Model
+	Id         int
 	MemberId   int
 	Status     int
 	Number     string
@@ -35,7 +35,7 @@ func (o *Order) ListOrders() (orders []models.Order, err e.SelfError) {
 	for key, value := range orders {
 		orders[key].StatusDesc = order.GetStatus(value.Status)
 		timeNow := time.Unix(int64(value.CreateAt), 0)
-		orders[key].CreateTime = timeNow.Format("2006-01-02 15:04:05") //2015-06-15 08:52:32
+		orders[key].CreateTimeDesc = timeNow.Format("2006-01-02 15:04:05") //2015-06-15 08:52:32
 
 	}
 
@@ -49,6 +49,32 @@ func (o *Order) CountOrders() (count int, err e.SelfError) {
 	if goodsErr {
 		err.Code = e.ERROR_SQL_FAIL
 	}
+
+	return
+}
+
+//获取文章（redis不存在读取数据库）
+func (o *Order) DetailOrder() (rst map[string]interface{}, err e.SelfError) {
+	fields := "id,number,create_at,review_time,remark"
+	orderDetail, orderErr := models.DetailOrder(o.Id, fields)
+	if orderErr {
+		err.Code = e.ERROR_SQL_FAIL
+	}
+	timeNow := time.Unix(int64(orderDetail.CreateAt), 0)
+	orderDetail.CreateTimeDesc = timeNow.Format("2006-01-02 15:04:05") //2015-06-15 08:52:32
+
+	if orderDetail.ReviewTime == 0 {
+		orderDetail.ReviewTimeDesc = "暂未审核"
+	}
+	orderGoodsFields := "order_goods.goods_name,order_goods.number," +
+		"order_goods.specification,order_goods.member_price,order_goods.remark,order_goods.total_price"
+	orderDetailGoods, orderDetailGoodsFlag := models.DetailOrderGoods(o.Id, orderGoodsFields)
+
+	if orderDetailGoodsFlag {
+		err.Code = e.ERROR_SQL_FAIL
+	}
+	rst["orderInfo"] = orderDetail
+	rst["goodsInfo"] = orderDetailGoods
 
 	return
 }

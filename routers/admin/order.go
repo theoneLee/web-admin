@@ -49,3 +49,36 @@ func ListOrders(c *gin.Context) {
 
 	appG.Response(http.StatusOK, code, data)
 }
+
+
+//订单详情
+//func DetailOrder(c *gin.Context) {
+//	appG := app.Gin{C: c} //实例化响应对象
+//	id := com.StrTo(c.Param("id")).MustInt()
+//	valid := validation.Validation{}
+//	valid.Min(id, 1, "id").Message("ID必须大于0")
+//
+//	//验证有没有错误
+//	if valid.HasErrors() {
+//		//记录验证错误日志
+//		app.MarkErrors(valid.Errors)
+//		//请求返回
+//		appG.Response(http.StatusOK, e.INVALID_PARAMS, nil)
+//	}
+//	code := e.ERROR_SQL_FAIL
+//	var data *models.Order
+//
+//	//获取商品详情
+//	orderService := order.Order{
+//		Id: id,
+//	}
+//
+//	orderRst, err := orderService.DetailOrder()
+//	if err.Code == 0 {
+//		code = e.SUCCESS
+//		data = orderRst
+//	}
+//
+//	appG.Response(http.StatusOK, code, data)
+//
+//}

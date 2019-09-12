@@ -54,6 +54,7 @@ func InitRouter() *gin.Engine {
 
 		//订单
 		apiAdmin.GET("/orders", admin.ListOrders)
+		//apiAdmin.GET("/orders/:id", admin.DetailOrder)
 
 
 	}

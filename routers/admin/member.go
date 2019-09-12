@@ -140,11 +140,11 @@ func DetailMember(c *gin.Context) {
 	var data *models.Member
 
 	//获取商品详情
-	goodsService := member.Member{
+	memberService := member.Member{
 		Id: id,
 	}
 
-	memberRst, err := goodsService.DetailMember()
+	memberRst, err := memberService.DetailMember()
 	if err.Code == 0 {
 		code = e.SUCCESS
 		data = memberRst
