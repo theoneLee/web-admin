@@ -25,7 +25,7 @@ type Order struct {
 func (o *Order) ListOrders() (orders []models.Order, err e.SelfError) {
 	fields := "order.id,m.name as member_name, order.number,order.create_at, order.status," +
 		"order.reference_price,order.actual_price,order.discount,order.integral," +
-		"order.remark,m1.name as relation_name"
+		"order.remark,m1.name as team_name"
 	orders, ordersErr := models.ListOrders(o.Offset, o.Limit, o.getMaps(), fields, o.Remark, o.StartTime, o.EndTime, o.OrderField, o.OrderSort)
 	if ordersErr {
 		err.Code = e.ERROR_SQL_FAIL

@@ -10,7 +10,6 @@ type Order struct {
 	Number         string
 	MemberId       int
 	MemberName     string
-	RelationName string
 	StatusDesc     string
 	TeamName       string
 	ReferencePrice float64
@@ -23,8 +22,7 @@ type Order struct {
 	ShipTime       int
 	ReviewTime     int
 	Integral       int
-	Amount         float64
-	CreateTime string
+	CreateTime     string
 }
 
 func ListOrders(pageNum int, pageSize int, maps interface{}, fields string, remark string, startTime string, endTime string, orderField string, orderSort int) (orders []Order, flag bool) {
@@ -55,9 +53,9 @@ func ListOrders(pageNum int, pageSize int, maps interface{}, fields string, rema
 		query = query.Order("order.id desc")
 	} else {
 		if orderSort == 1 { //升序
-			query = query.Order("order."+orderField + " asc")
+			query = query.Order("order." + orderField + " asc")
 		} else { //降序
-			query = query.Order("order."+orderField + " desc")
+			query = query.Order("order." + orderField + " desc")
 		}
 	}
 
