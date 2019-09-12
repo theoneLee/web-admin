@@ -39,6 +39,7 @@ func InitRouter() *gin.Engine {
 		apiAdmin.GET("/member", admin.ListMembers)
 		apiAdmin.POST("/member/statusChange", admin.MemberStatusChange)
 		apiAdmin.PUT("/member/:id", admin.EditMember)
+		apiAdmin.GET("/member/:id", admin.DetailMember)
 
 		//等级
 		apiAdmin.GET("/level", admin.ListLevels)

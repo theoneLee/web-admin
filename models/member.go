@@ -8,9 +8,9 @@ import (
 
 type Member struct {
 	Model
-	RelationId       int    `json:",omitempty"` //上级ID
+	RelationId       int    //上级ID
 	RelationName     string `gorm:"-"`          //上级名称
-	Name             string `json:",omitempty"` //姓名
+	Name             string  //姓名
 	Sex              int                        //性别
 	SexDesc          string `gorm:"-"`
 	IdCard           string         //身份证
@@ -31,7 +31,7 @@ type Member struct {
 	TotalOrderNumber int     `gorm:"-"` //订单数量
 	ExpiredTime      int                //到期时间
 	Username         string
-	Password         string
+	Password         string `json:"omitempty"`
 	Remark           string
 	IsOperate        int
 	OperateAddress   string
@@ -128,7 +128,7 @@ func ListMembers(pageNum int, pageSize int, maps interface{}, fields string) (me
 func DetailMember(id int, fields string) (*Member, bool) {
 	var member Member
 	var flag bool
-	err := Db.Debug().Table("member").
+	err := Db.Table("member").
 		Where("id = ? AND delete_at = ? ", id, 0).
 		Select(fields).
 		Find(&member).Error

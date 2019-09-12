@@ -122,6 +122,38 @@ func ListMembers(c *gin.Context) {
 
 }
 
+//商品详情
+func DetailMember(c *gin.Context) {
+	appG := app.Gin{C: c} //实例化响应对象
+	id := com.StrTo(c.Param("id")).MustInt()
+	valid := validation.Validation{}
+	valid.Min(id, 1, "id").Message("ID必须大于0")
+
+	//验证有没有错误
+	if valid.HasErrors() {
+		//记录验证错误日志
+		app.MarkErrors(valid.Errors)
+		//请求返回
+		appG.Response(http.StatusOK, e.INVALID_PARAMS, nil)
+	}
+	code := e.ERROR_SQL_FAIL
+	var data *models.Member
+
+	//获取商品详情
+	goodsService := member.Member{
+		Id: id,
+	}
+
+	memberRst, err := goodsService.DetailMember()
+	if err.Code == 0 {
+		code = e.SUCCESS
+		data = memberRst
+	}
+
+	appG.Response(http.StatusOK, code, data)
+
+}
+
 //会员列表
 func MemberStatusChange(c *gin.Context) {
 	appG := app.Gin{C: c} //实例化响应对象
