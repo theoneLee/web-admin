@@ -150,6 +150,12 @@ func (o *Order) AddOrder() (err e.SelfError) {
 		err.Code = e.ERROR_USER
 		return
 	}
+	recommend := models.CheckUser(o.RecommendId)
+
+	if recommend.IsOperate == 0  {
+		err.Code = e.ERROR_OPERATE
+		return
+	}
 	recommendId := o.RecommendId
 	memberId := member.ID
 	billNumber := o.BillNumber

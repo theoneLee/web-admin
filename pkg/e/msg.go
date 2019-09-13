@@ -17,6 +17,7 @@ var MsgFlags = map[int]string{
 	ERROR_UPLOAD_CHECK_IMAGE_FAIL:   "检测图片失败",
 	ERROR_USERNAME:                  "用户名已存在",
 	ERROR_USER:                      "用户不存在",
+	ERROR_OPERATE:                   "非经营店不能下单",
 }
 
 /**

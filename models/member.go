@@ -180,12 +180,12 @@ func CheckAuth(username string, status int) (member Member) {
 	if status != 0 {
 		memberCondition.Status = status
 	}
-	Db.Select([]string{"id", "username", "password", "status", "name"}).Where(memberCondition).First(&member)
+	Db.Select([]string{"id", "username", "password", "status", "name", "is_operate"}).Where(memberCondition).First(&member)
 	return
 }
 
 func CheckUser(id int) (member Member) {
 
-	Db.Select([]string{"id", "username", "password", "status", "name"}).Where("id = ? ", id).First(&member)
+	Db.Select([]string{"id", "username", "password", "status", "name", "is_operate"}).Where("id = ? ", id).First(&member)
 	return
 }
