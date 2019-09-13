@@ -7,6 +7,7 @@ import (
 	"gitee.com/muzipp/Distribution/pkg/logging"
 	"gitee.com/muzipp/Distribution/pkg/setting"
 	"gitee.com/muzipp/Distribution/pkg/util"
+	"gitee.com/muzipp/Distribution/routers/common"
 	"gitee.com/muzipp/Distribution/service/admin/order"
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
@@ -87,17 +88,14 @@ func DetailOrder(c *gin.Context) {
 }
 
 func AddOrder(c *gin.Context) {
-	appG := app.Gin{C: c}                                     //实例化响应对象
-	recommendName := c.DefaultPostForm("recommend_name", "0") //下单人ID
-	memberName := c.DefaultPostForm("member_name", "0")       //订单所属人ID
-	remark := c.DefaultPostForm("remark", "")                 //备注
-	billNumber := c.DefaultPostForm("bill_number", "")        //银行流水号
-	goodsInfo := c.DefaultPostForm("goods_info", "")          //下单的商品信息
+	appG := app.Gin{C: c}                               //实例化响应对象
+	memberName := c.DefaultPostForm("member_name", "0") //订单所属人ID
+	remark := c.DefaultPostForm("remark", "")           //备注
+	billNumber := c.DefaultPostForm("bill_number", "")  //银行流水号
+	goodsInfo := c.DefaultPostForm("goods_info", "")    //下单的商品信息
 
 	valid := validation.Validation{}
-	valid.Required(recommendName, "recommend_name").Message("下单人不能为空")
 	valid.Required(memberName, "member_name").Message("订单所属人不能为空")
-	valid.Required(remark, "remark").Message("备注不能为空")
 	valid.Required(billNumber, "bill_number").Message("银行流水号不能为空")
 	valid.Required(goodsInfo, "goods_info").Message("商品信息不能为空")
 
@@ -108,11 +106,11 @@ func AddOrder(c *gin.Context) {
 	if !valid.HasErrors() {
 		//图片上传
 		orderService := order.Order{
-			Remark:        remark,
-			MemberName:    memberName,
-			RecommendName: recommendName,
-			BillNumber:    billNumber,
-			GoodsInfo:     goodsInfo,
+			Remark:      remark,
+			MemberName:  memberName,
+			BillNumber:  billNumber,
+			GoodsInfo:   goodsInfo,
+			RecommendId: common.SelfUser.Id,
 		}
 		err := orderService.AddOrder()
 

@@ -8,25 +8,28 @@ import (
 
 type Order struct {
 	Model
-	Number         string
-	MemberId       int
-	MemberName     string `gorm:"-"`
-	StatusDesc     string `gorm:"-"`
-	TeamName       string `gorm:"-"`
-	ReferencePrice float64
-	ActualPrice    float64
-	Discount       float64
-	OtherIncome    float64
-	Commission     float64
-	Status         int
-	Remark         string
-	ShipTime       int
-	ReviewTime     int
-	Integral       int
-	CreateTimeDesc string `gorm:"-"`
-	ReviewTimeDesc string `gorm:"-"`
-	RecommendId    int
-	BillNumber     string
+	Number            string
+	MemberId          int
+	MemberName        string `gorm:"-"`
+	MemberUserName    string `gorm:"-"`
+	StatusDesc        string `gorm:"-"`
+	RecommendName     string `gorm:"-"`
+	RecommendUserName string `gorm:"-"`
+	ReferencePrice    float64
+	ActualPrice       float64
+	Discount          float64
+	OtherIncome       float64
+	Commission        float64
+	Status            int
+	Remark            string
+	ShipTime          int
+	ReviewTime        int
+	Integral          int
+	CreateTimeDesc    string `gorm:"-"`
+	ReviewTimeDesc    string `gorm:"-"`
+	ShipTimeDesc      string `gorm:"-"`
+	RecommendId       int
+	BillNumber        string
 }
 
 type OrderGoodsDetail struct {
@@ -57,7 +60,7 @@ func ListOrders(pageNum int, pageSize int, maps interface{}, fields string, rema
 
 	query = query.
 		Joins("left join `member` as m on m.id = order.member_id").
-		Joins("left join `member` as m1 on m1.id = m.relation_id").
+		Joins("left join `member` as m1 on m1.id = order.recommend_id").
 		//Offset(pageNum).
 		//Limit(pageSize).
 		Select(fields)
@@ -114,7 +117,10 @@ func DetailOrder(id int, fields string) (*Order, bool) {
 	var order Order
 	var flag bool
 	err := Db.Table("order").
-		Where("id = ? AND delete_at = ? ", id, 0).
+		Joins("left join `member` as m on m.id = order.member_id").
+		Joins("left join `member` as m1 on m1.id = order.recommend_id").
+		//Offset(pageNum).
+		Where("order.id = ? AND order.delete_at = ? ", id, 0).
 		Select(fields).
 		Find(&order).Error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {

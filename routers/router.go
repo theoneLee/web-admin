@@ -3,10 +3,12 @@ package routers
 import (
 	"gitee.com/muzipp/Distribution/middleware/auth"
 	"gitee.com/muzipp/Distribution/pkg/setting"
+	"gitee.com/muzipp/Distribution/pkg/upload"
 	"gitee.com/muzipp/Distribution/routers/admin"
 	"gitee.com/muzipp/Distribution/routers/common"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 func InitRouter() *gin.Engine {
@@ -21,6 +23,8 @@ func InitRouter() *gin.Engine {
 
 	//设置鉴权路由（就是登录接口）
 	r.POST("/auth", common.GetAuth)
+	r.StaticFS("/upload/images", http.Dir(upload.GetImageFullPath()))
+
 
 	/**
 	创建一个路由组，路由组的路由可以具有相同的路由前缀或者中间件

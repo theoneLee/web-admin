@@ -2,9 +2,11 @@ package upload
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"path"
 	"strings"
+	"time"
 
 	"gitee.com/muzipp/Distribution/pkg/file"
 	"gitee.com/muzipp/Distribution/pkg/setting"
@@ -25,8 +27,19 @@ func GetImageName(name string) string {
 	//处理文件名（如果文件名不包括后缀的话，直接返回文件名），如果文件名包含后缀的话，处理文件名（取出指定的后缀）
 	fileName := strings.TrimSuffix(name, ext)
 
+	//文件名拼接上时间戳和随机数
+	timeNow := time.Now().Format("20060102150405")
+	tempRand := []string{
+		"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k",
+		"l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v",
+		"w", "x", "y", "z",
+	}
+	for i := 0; i <= 3; i++ {
+		timeNow = timeNow + tempRand[rand.Intn(26)]
+	}
+
 	//文件名md5处理
-	fileName = util.EncodeMD5(fileName)
+	fileName = util.EncodeMD5(fileName+timeNow)
 
 	//返回文件名+后缀
 	return fileName + ext

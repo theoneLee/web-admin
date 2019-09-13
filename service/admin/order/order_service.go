@@ -2,7 +2,6 @@ package order
 
 import (
 	"encoding/json"
-	"fmt"
 	"gitee.com/muzipp/Distribution/models"
 	"gitee.com/muzipp/Distribution/pkg/e"
 	"gitee.com/muzipp/Distribution/pkg/order"
@@ -10,21 +9,21 @@ import (
 )
 
 type Order struct {
-	Id            int
-	MemberId      int
-	Status        int
-	Number        string
-	Remark        string
-	StartTime     string
-	EndTime       string
-	OrderField    string
-	OrderSort     int
-	Offset        int
-	Limit         int
-	RecommendName string
-	MemberName    string
-	BillNumber    string
-	GoodsInfo     string
+	Id          int
+	MemberId    int
+	Status      int
+	Number      string
+	Remark      string
+	StartTime   string
+	EndTime     string
+	OrderField  string
+	OrderSort   int
+	Offset      int
+	Limit       int
+	RecommendId int
+	MemberName  string
+	BillNumber  string
+	GoodsInfo   string
 }
 
 type GoodsInfo struct {
@@ -34,9 +33,9 @@ type GoodsInfo struct {
 
 //订单列表
 func (o *Order) ListOrders() (orders []models.Order, err e.SelfError) {
-	fields := "order.id,m.name as member_name, order.number,order.create_at, order.status," +
+	fields := "order.id,order.bill_number,order.ship_time,m.name as member_name, m.username as member_user_name,order.number,order.create_at, order.status," +
 		"order.reference_price,order.actual_price,order.discount,order.integral," +
-		"order.remark,m1.name as team_name"
+		"order.remark,m1.name as recommend_name,m1.username as recommend_user_name"
 	orders, ordersErr := models.ListOrders(o.Offset, o.Limit, o.getMaps(), fields, o.Remark, o.StartTime, o.EndTime, o.OrderField, o.OrderSort)
 	if ordersErr {
 		err.Code = e.ERROR_SQL_FAIL
@@ -45,9 +44,12 @@ func (o *Order) ListOrders() (orders []models.Order, err e.SelfError) {
 	//处理显示文案部分
 	for key, value := range orders {
 		orders[key].StatusDesc = order.GetStatus(value.Status)
-		timeNow := time.Unix(int64(value.CreateAt), 0)
-		orders[key].CreateTimeDesc = timeNow.Format("2006-01-02 15:04:05") //2015-06-15 08:52:32
-
+		orders[key].CreateTimeDesc = time.Unix(int64(value.CreateAt), 0).Format("2006-01-02 15:04:05") //2015-06-15 08:52:32
+		if value.ShipTime == 0 {
+			orders[key].ShipTimeDesc = "未发货"
+		} else {
+			orders[key].ShipTimeDesc = time.Unix(int64(value.ShipTime), 0).Format("2006-01-02 15:04:05")
+		}
 	}
 
 	return
@@ -67,17 +69,22 @@ func (o *Order) CountOrders() (count int, err e.SelfError) {
 //获取文章（redis不存在读取数据库）
 func (o *Order) DetailOrder() (rst map[string]interface{}, err e.SelfError) {
 	rst = make(map[string]interface{}, 10)
-	fields := "id,number,create_at,review_time,remark"
+	fields := "order.id,order.number,order.create_at,order.ship_time,order.remark,order.bill_number,order.status," +
+		"m.name as member_name,m.username as member_username," +
+		"m1.name as recommend_name,m1.username as recommend_user_name"
 	orderDetail, orderErr := models.DetailOrder(o.Id, fields)
 	if orderErr {
 		err.Code = e.ERROR_SQL_FAIL
 	}
-	timeNow := time.Unix(int64(orderDetail.CreateAt), 0)
-	orderDetail.CreateTimeDesc = timeNow.Format("2006-01-02 15:04:05") //2015-06-15 08:52:32
+	orderDetail.CreateTimeDesc = time.Unix(int64(orderDetail.CreateAt), 0).Format("2006-01-02 15:04:05") //2015-06-15 08:52:32
 
-	if orderDetail.ReviewTime == 0 {
-		orderDetail.ReviewTimeDesc = "暂未审核"
+	if orderDetail.ShipTime == 0 {
+		orderDetail.ShipTimeDesc = "暂未审核"
+	} else {
+		orderDetail.ShipTimeDesc = time.Unix(int64(orderDetail.ShipTime), 0).Format("2006-01-02 15:04:05") //2015-06-15 08:52:32
 	}
+	orderDetail.StatusDesc = order.GetStatus(orderDetail.Status)
+
 	orderGoodsFields := "order_goods.goods_name,order_goods.number," +
 		"order_goods.specification,order_goods.member_price,order_goods.remark,order_goods.total_price"
 	orderDetailGoods, orderDetailGoodsFlag := models.DetailOrderGoods(o.Id, orderGoodsFields)
@@ -95,11 +102,13 @@ func (o *Order) DetailOrder() (rst map[string]interface{}, err e.SelfError) {
 func (o *Order) StatusChange() (err e.SelfError) {
 	data := make(map[string]interface{})
 	data["status"] = o.Status
+	if o.Status == 1 {
+		data["ship_time"] = int(time.Now().Unix())
+	}
 	maps := o.getMaps()
-	maps["id"] = o.Id
+	maps["order.id"] = o.Id
 
-	selectOrder, selectErr := models.DetailOrder(o.Id, "id,status") //获取订单详情
-	fmt.Println(selectOrder)
+	selectOrder, selectErr := models.DetailOrder(o.Id, "order.id,order.status") //获取订单详情
 
 	if selectErr || selectOrder == nil {
 		err.Code = e.ERROR_SQL_FAIL
@@ -121,7 +130,9 @@ func (o *Order) StatusChange() (err e.SelfError) {
 		return
 	}
 
-	res := models.OrderStatusChange(maps, data)
+	updateMaps := o.getMaps()
+	updateMaps["id"] = o.Id
+	res := models.OrderStatusChange(updateMaps, data)
 
 	if res { //会员状态变化失败
 		err.Code = e.ERROR_SQL_FAIL
@@ -134,17 +145,12 @@ func (o *Order) AddOrder() (err e.SelfError) {
 	data := make(map[string]interface{})
 	goodsInfo := o.GoodsInfo
 	remark := o.Remark
-	recommend := models.CheckAuth(o.RecommendName, 0)
-	if recommend.ID == 0 {
-		err.Code = e.ERROR_USER
-		return
-	}
 	member := models.CheckAuth(o.MemberName, 0)
 	if member.ID == 0 {
 		err.Code = e.ERROR_USER
 		return
 	}
-	recommendId := recommend.ID
+	recommendId := o.RecommendId
 	memberId := member.ID
 	billNumber := o.BillNumber
 

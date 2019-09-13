@@ -45,12 +45,13 @@ func AddGoods(data map[string]interface{}, tx *gorm.DB) (id int, flag bool) {
 
 func ListGoods(pageNum int, pageSize int, maps interface{}, fields string) (goods []Goods, flag bool) {
 
-	err := Db.Table("goods").
+	err := Db.Debug().Table("goods").
 		Where(maps).
 		Joins("left join `goods_img` as gi on gi.goods_id = goods.id").
 		//Offset(pageNum).
 		//Limit(pageSize).
 		Select(fields).
+		Group("goods.id").
 		Scan(&goods).Error
 	if err != nil {
 		flag = true
@@ -78,6 +79,7 @@ func DetailGoods(id int, fields string) (*Goods, bool) {
 		Where("goods.id = ? AND goods.delete_at = ? ", id, 0).
 		Joins("left join `goods_img` as gi on gi.goods_id = goods.id").
 		Select(fields).
+		Group("goods.id").
 		Find(&goods).Error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		flag = true
