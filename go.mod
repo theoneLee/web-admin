@@ -10,7 +10,8 @@ require (
 	github.com/gin-gonic/gin v1.4.0
 	github.com/go-ini/ini v1.46.0
 	github.com/gomodule/redigo v2.0.0+incompatible
+	github.com/icattlecoder/godaemon v0.0.0-20140627053409-f0fff2a3c017
 	github.com/jinzhu/gorm v1.9.10
-	github.com/satori/go.uuid v1.2.0
+	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/unknwon/com v1.0.1
 )

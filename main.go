@@ -8,6 +8,7 @@ import (
 	"gitee.com/muzipp/Distribution/pkg/setting"
 	"gitee.com/muzipp/Distribution/routers"
 	_ "github.com/codyguo/godaemon"
+	_ "github.com/icattlecoder/godaemon"
 	"log"
 	"net/http"
 )
