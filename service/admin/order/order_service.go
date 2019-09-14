@@ -152,7 +152,7 @@ func (o *Order) AddOrder() (err e.SelfError) {
 	}
 	recommend := models.CheckUser(o.RecommendId)
 
-	if recommend.IsOperate == 0  {
+	if recommend.IsOperate == 0 {
 		err.Code = e.ERROR_OPERATE
 		return
 	}
@@ -194,6 +194,12 @@ func (o *Order) AddOrder() (err e.SelfError) {
 		goodsData := make(map[string]interface{})
 
 		goods, _ := models.DetailGoods(value.Id, "goods.*")
+
+		if goods.Stock < value.Number {
+			tx.Rollback()
+			err.Code = e.ERROR_GOODS_NUMBER
+			return
+		}
 		sumPrice = sumPrice + float64(value.Number)*goods.MemberPrice
 		totalPrice = totalPrice + float64(value.Number)*goods.Price
 		totalIntegral = totalIntegral + value.Number*goods.Integral
