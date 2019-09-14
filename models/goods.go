@@ -45,7 +45,7 @@ func AddGoods(data map[string]interface{}, tx *gorm.DB) (id int, flag bool) {
 
 func ListGoods(pageNum int, pageSize int, maps interface{}, fields string) (goods []Goods, flag bool) {
 
-	err := Db.Debug().Table("goods").
+	err := Db.Table("goods").
 		Where(maps).
 		Joins("left join `goods_img` as gi on gi.goods_id = goods.id").
 		//Offset(pageNum).
