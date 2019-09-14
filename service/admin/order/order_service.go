@@ -71,7 +71,7 @@ func (o *Order) DetailOrder() (rst map[string]interface{}, err e.SelfError) {
 	rst = make(map[string]interface{}, 10)
 	fields := "order.id,order.number,order.create_at,order.ship_time,order.remark,order.bill_number,order.status," +
 		"m.name as member_name,m.username as member_username," +
-		"m1.name as recommend_name,m1.username as recommend_user_name"
+		"m1.name as recommend_name,m1.username as recommend_user_name,m1.operate_address as recommend_address"
 	orderDetail, orderErr := models.DetailOrder(o.Id, fields)
 	if orderErr {
 		err.Code = e.ERROR_SQL_FAIL
