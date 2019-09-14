@@ -131,7 +131,7 @@ func (m *Member) StatusChange() (err e.SelfError) {
 	maps := m.getMaps()
 	maps["id"] = m.Id
 
-	selectMember, selectErr := models.DetailMember(m.Id, "id,status") //获取订单详情
+	selectMember, selectErr := models.DetailMember(m.Id, "member.id,member.status") //获取订单详情
 
 	if selectErr || selectMember == nil {
 		err.Code = e.ERROR_SQL_FAIL
