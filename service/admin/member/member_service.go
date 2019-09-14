@@ -87,7 +87,7 @@ func (m *Member) EditMember(id int) (err e.SelfError) {
 }
 
 func (m *Member) ListMembers() (members []models.Member, err e.SelfError) {
-	fields := "member.id,member.name,member.status,member.sex,member.id_card,member.username," +
+	fields := "member.id,member.name,member.status,member.sex,member.id_card,member.username,member.is_operate," +
 		"member.birth,member.phone,member.spare_phone,member.email,member.bank," +
 		"member.bank_card,member.available_income,member.extract_income," +
 		"l.name as level_name,m1.name as relation_name,m1.username as relation_user_name," +
