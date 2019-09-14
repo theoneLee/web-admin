@@ -35,7 +35,7 @@ type GoodsInfo struct {
 func (o *Order) ListOrders() (orders []models.Order, err e.SelfError) {
 	fields := "order.id,order.bill_number,order.ship_time,m.name as member_name, m.username as member_user_name,order.number,order.create_at, order.status," +
 		"order.reference_price,order.actual_price,order.discount,order.integral," +
-		"order.remark,m1.name as recommend_name,m1.username as recommend_user_name"
+		"order.remark,m1.name as recommend_name,m1.username as recommend_user_name,m1.operate_address as recommend_address"
 	orders, ordersErr := models.ListOrders(o.Offset, o.Limit, o.getMaps(), fields, o.Remark, o.StartTime, o.EndTime, o.OrderField, o.OrderSort)
 	if ordersErr {
 		err.Code = e.ERROR_SQL_FAIL

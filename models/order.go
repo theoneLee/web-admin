@@ -15,6 +15,7 @@ type Order struct {
 	StatusDesc        string `gorm:"-"`
 	RecommendName     string `gorm:"-"`
 	RecommendUserName string `gorm:"-"`
+	RecommendAddress  string `gorm:"-"`
 	ReferencePrice    float64
 	ActualPrice       float64
 	Discount          float64
