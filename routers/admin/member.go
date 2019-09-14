@@ -23,6 +23,7 @@ func AddMember(c *gin.Context) {
 	levelId := com.StrTo(c.DefaultPostForm("level_id", "0")).MustInt()
 	name := c.DefaultPostForm("name", "")
 	relationName := c.DefaultPostForm("relation_name", "")
+	recommendName := c.DefaultPostForm("recommend_name", "")
 	idCard := c.DefaultPostForm("id_card", "")
 	birth := c.DefaultPostForm("birth", "")
 	phone := c.DefaultPostForm("phone", "")
@@ -42,6 +43,7 @@ func AddMember(c *gin.Context) {
 	valid.Required(username, "username").Message("用户名不能为空")
 	valid.Required(levelId, "level_id").Message("等级不能为空")
 	valid.Required(relationName, "relation_name").Message("上级代理不能为空")
+	valid.Required(recommendName, "recommend_name").Message("推荐人不能为空")
 
 	//设置返回数据
 	data := make(map[string]interface{})
@@ -62,6 +64,12 @@ func AddMember(c *gin.Context) {
 			goto End
 		}
 
+		recommendUser := models.CheckAuth(recommendName, 0)
+		if recommendUser.ID == 0 {
+			code = e.ERROR_USERNAME
+			goto End
+		}
+
 		memberService := member.Member{
 			Sex:            sex,
 			LevelId:        levelId,
@@ -75,6 +83,7 @@ func AddMember(c *gin.Context) {
 			Bank:           bank,
 			Status:         1,
 			RelationId:     relationUser.ID,
+			RecommendId:    recommendUser.ID,
 			Username:       username,
 			PassWord:       util.EncodeMD5(password),
 			IsOperate:      isOperate,
@@ -85,6 +94,8 @@ func AddMember(c *gin.Context) {
 
 		if err.Code == 0 {
 			code = e.SUCCESS
+		} else {
+			code = err.Code
 		}
 
 	} else {
@@ -256,4 +267,3 @@ End:
 	appG.Response(http.StatusOK, code, data)
 
 }
-

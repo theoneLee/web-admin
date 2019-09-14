@@ -9,6 +9,7 @@ import (
 type Member struct {
 	Id             int
 	RelationId     int
+	RecommendId    int
 	Name           string
 	Sex            int
 	IdCard         string
@@ -33,6 +34,7 @@ type Member struct {
 func (m *Member) AddMember() (err e.SelfError) {
 	data := make(map[string]interface{})
 	data["relation_id"] = m.RelationId
+	data["recommend_id"] = m.RecommendId
 	data["name"] = m.Name
 	data["sex"] = m.Sex
 	data["id_card"] = m.IdCard
@@ -50,6 +52,14 @@ func (m *Member) AddMember() (err e.SelfError) {
 	data["operate_address"] = m.OperateAddress
 	data["remark"] = m.Remark
 
+	//一个下级最多只能有两个直系下级
+	maps := m.getMaps()
+	maps["relation_id"] = m.RelationId
+	childCount, _ := models.CountMembers(maps)
+	if childCount>=2 {
+		err.Code = e.ERROR_USER_NUMBER
+		return 
+	}
 	res := models.AddMember(data)
 
 	if res { //添加会员失败
@@ -91,7 +101,8 @@ func (m *Member) ListMembers() (members []models.Member, err e.SelfError) {
 		"member.birth,member.phone,member.spare_phone,member.email,member.bank," +
 		"member.bank_card,member.available_income,member.extract_income," +
 		"l.name as level_name,m1.name as relation_name,m1.username as relation_user_name," +
-		"count(o.id) as total_order_number,sum(o.reference_price) as total_order_income,member.integral"
+		"count(o.id) as total_order_number,sum(o.reference_price) as total_order_income,member.integral," +
+		"m2.name as recommend_name,m2.username as recommend_user_name"
 	members, memberErr := models.ListMembers(m.Offset, m.Limit, m.getMaps(), fields)
 	if memberErr {
 		err.Code = e.ERROR_SQL_FAIL
@@ -99,9 +110,9 @@ func (m *Member) ListMembers() (members []models.Member, err e.SelfError) {
 	for key, value := range members {
 		members[key].StatusDesc = member.GetStatus(value.Status)
 		members[key].SexDesc = member.GetSex(value.Sex)
-		if value.Birth=="" {
+		if value.Birth == "" {
 			members[key].Age = 0
-		} else  {
+		} else {
 			members[key].Age = member.GetAge(member.GetTimeFromStrDate(value.Birth))
 		}
 	}
@@ -110,12 +121,12 @@ func (m *Member) ListMembers() (members []models.Member, err e.SelfError) {
 
 }
 
-
 //获取文章（redis不存在读取数据库）
 func (m *Member) DetailMember() (goods *models.Member, err e.SelfError) {
 	fields := "member.id,member.relation_id,member.sex,member.name,member.username,member.id_card,member.birth," +
 		"member.phone,member.spare_phone,member.email,member.bank_card,member.bank,member.status,member.level_id," +
-		"member.remark,member.is_operate,member.operate_address,m1.name as relation_name,m1.username as relation_user_name"
+		"member.remark,member.is_operate,member.operate_address,m1.name as relation_name,m1.username as relation_user_name," +
+		"m2.name as recommend_name,m2.username as recommend_user_name"
 	goods, goodsErr := models.DetailMember(m.Id, fields)
 	if goodsErr {
 		err.Code = e.ERROR_SQL_FAIL

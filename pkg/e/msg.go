@@ -19,6 +19,7 @@ var MsgFlags = map[int]string{
 	ERROR_USER:                      "用户不存在",
 	ERROR_OPERATE:                   "非经营店不能下单",
 	ERROR_GOODS_NUMBER:              "商品数量不能超过库存数量",
+	ERROR_USER_NUMBER:               "最多只能推荐两人",
 }
 
 /**

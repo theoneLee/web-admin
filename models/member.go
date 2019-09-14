@@ -9,8 +9,11 @@ import (
 type Member struct {
 	Model
 	RelationId       int    //上级ID
+	RecommendId       int    //上级ID
 	RelationName     string `gorm:"-"`          //上级名称
 	RelationUserName     string `gorm:"-"`          //上级名称
+	RecommendName     string `gorm:"-"`          //上级名称
+	RecommendUserName     string `gorm:"-"`          //上级名称
 	Name             string  //姓名
 	Sex              int                        //性别
 	SexDesc          string `gorm:"-"`
@@ -42,6 +45,7 @@ type Member struct {
 func AddMember(data map[string]interface{}) (flag bool) {
 	err := Db.Create(&Member{
 		RelationId:     data["relation_id"].(int),
+		RecommendId:     data["recommend_id"].(int),
 		Name:           data["name"].(string),
 		Sex:            data["sex"].(int),
 		IdCard:         data["id_card"].(string),
@@ -112,6 +116,7 @@ func ListMembers(pageNum int, pageSize int, maps interface{}, fields string) (me
 	err := Db.Table("member").
 		Joins("left join `level` as l on l.id = member.level_id").
 		Joins("left join `member` as m1 on m1.id = member.relation_id").
+		Joins("left join `member` as m2 on m2.id = member.recommend_id").
 		Joins("left join `order` as o on o.member_id = member.id").
 		//Offset(pageNum).
 		//Limit(pageSize).
@@ -133,6 +138,7 @@ func DetailMember(id int, fields string) (*Member, bool) {
 	var flag bool
 	err := Db.Table("member").
 		Joins("left join `member` as m1 on m1.id = member.relation_id").
+		Joins("left join `member` as m2 on m2.id = member.recommend_id").
 		Where("member.id = ? AND member.delete_at = ? ", id, 0).
 		Select(fields).
 		Find(&member).Error
