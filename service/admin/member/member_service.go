@@ -58,7 +58,7 @@ func (m *Member) AddMember() (err e.SelfError) {
 	childCount, _ := models.CountMembers(maps)
 	if childCount>=2 {
 		err.Code = e.ERROR_USER_NUMBER
-		return 
+		return
 	}
 	res := models.AddMember(data)
 

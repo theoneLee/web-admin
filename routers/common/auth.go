@@ -50,12 +50,9 @@ func GetAuth(c *gin.Context) {
 		if user.ID > 0 && user.Password == util.EncodeMD5(password) { //用户存在且账号密码正确的情况
 
 			//获取Redis中已经保存的token
-			fmt.Println("user_id" + strconv.Itoa(user.ID))
 			redisUserGetToken, _ := gredis.Get("user_id" + strconv.Itoa(user.ID))
-			fmt.Println(redisUserGetToken)
-			fmt.Println(SelfToken)
 			_ = json.Unmarshal(redisUserGetToken, &SelfToken)
-			if SelfToken != "" {
+			if SelfToken != "" && len(redisUserGetToken) != 0 {
 				redisUserGetUser, _ := gredis.Get("user_token" + SelfToken)
 				_ = json.Unmarshal(redisUserGetUser, &SelfUser)
 				data["token"] = SelfToken
